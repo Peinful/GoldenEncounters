@@ -100,10 +100,6 @@
             transform: translateY(-5px);
             border-color: var(--accent-color);
         }
-        .spotlight-card-accent {
-            border: 1px solid rgba(224, 201, 123, 0.3);
-            background: linear-gradient(to bottom right, rgba(224, 201, 123, 0.08), transparent);
-        }
         .spotlight-header {
             height: 200px;
             display: flex;
@@ -113,9 +109,6 @@
         }
         .sprite-glow {
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-        }
-        .sprite-glow-accent {
-            filter: drop-shadow(0 0 25px rgba(224, 201, 123, 0.4));
         }
 
         /* Utility buttons */
@@ -132,12 +125,46 @@
         }
 
         input, select, textarea {
-            background: rgba(255, 255, 255, 0.02) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white;
+            transition: all 0.2s ease;
         }
         input:focus, select:focus, textarea:focus {
             border-color: var(--accent-color) !important;
-            box-shadow: 0 0 0 2px rgba(224, 201, 123, 0.15);
+            box-shadow: 0 0 0 2px rgba(224, 201, 123, 0.1);
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        
+        select option {
+            background-color: #0d1a21;
+            color: white;
+        }
+
+        /* Custom Dropdown Styling */
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .select-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0c97b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-right: 3rem !important;
         }
     </style>
 </head>
@@ -149,7 +176,6 @@
 
         const TEAM_NAME = "Golden Encounters";
         const DISCORD_LINK = "https://discord.gg/F934nRPG";
-        const ACCENT_HEX = "#e0c97b";
         
         const POKEMON_DB = [
             { id: 1, name: "bulbasaur", location: "Kanto Route 1 (Lure)", method: "Sweet Scent" },
@@ -162,7 +188,21 @@
             { id: 243, name: "raikou", location: "Roamer", method: "Legendary" },
         ];
 
-        // Component to generate random sparkles
+        const TEAM_MEMBERS = [
+            { name: "Pein", role: "Leader", favorite: "umbreon-shiny" },
+            { name: "Goldy", role: "Officer", favorite: "rayquaza-shiny" },
+            { name: "Luster", role: "Officer", favorite: "metagross-shiny" },
+            { name: "Aura", role: "Member", favorite: "lucario-shiny" },
+            { name: "Spark", role: "Member", favorite: "luxray-shiny" },
+            { name: "Zenith", role: "Member", favorite: "gardevoir-shiny" }
+        ];
+
+        const EVENTS = [
+            { title: "Weekly Safari Sprint", date: "April 15th", type: "Race" },
+            { title: "Golden Hour: Horde Hunt", date: "April 22nd", type: "Hunt" },
+            { title: "Pheno Chase Championship", date: "May 1st", type: "Competition" }
+        ];
+
         const SparkleEffect = () => {
             const sparkles = useMemo(() => {
                 return Array.from({ length: 40 }).map((_, i) => ({
@@ -228,7 +268,6 @@
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* Navigation */}
                     <nav className="border-b border-white/5 bg-[#050d11]/95 backdrop-blur-md sticky top-0 z-50">
                         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                             <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setCurrentPage('home')}>
@@ -253,7 +292,6 @@
                     <main className="flex-grow">
                         {currentPage === 'home' && (
                             <div className="animate-in fade-in duration-700">
-                                {/* HERO SECTION */}
                                 <section className="hero-bg pt-32 pb-24 px-6 border-b border-white/5">
                                     <SparkleEffect />
                                     <div className="max-w-7xl mx-auto text-center relative z-10">
@@ -267,7 +305,6 @@
                                             Welcome to <span className="text-[#e0c97b] font-bold">Golden Encounters</span>, a dedicated PokeMMO shiny hunting team built on patience, passion, and that unbeatable thrill when the sparkle finally hits.
                                         </p>
 
-                                        {/* Feature Grid with Hover Animations */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
                                             <div className="feature-card p-10 rounded-2xl flex flex-col items-center">
                                                 <i data-lucide="wand-2" className="text-[#e0c97b] w-8 h-8 mb-6"></i>
@@ -293,7 +330,6 @@
                                     </div>
                                 </section>
 
-                                {/* CURRENT SPOTLIGHTS SECTION */}
                                 <section className="py-24 px-6 bg-[#050d11] relative overflow-hidden">
                                     <SparkleEffect />
                                     <div className="max-w-7xl mx-auto relative z-10">
@@ -304,7 +340,6 @@
                                         </div>
 
                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                            {/* Frozen Spotlight */}
                                             <div className="spotlight-card flex flex-col">
                                                 <div className="spotlight-header bg-gradient-to-b from-blue-900/10 to-transparent">
                                                     <span className="absolute top-6 left-6 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest">Monthly Legendary</span>
@@ -317,11 +352,10 @@
                                                 </div>
                                             </div>
 
-                                            {/* Accent Spotlight */}
-                                            <div className="spotlight-card spotlight-card-accent flex flex-col">
+                                            <div className="spotlight-card border border-[#e0c97b]/30 bg-linear-to-br from-[#e0c97b]/8 flex flex-col">
                                                 <div className="spotlight-header bg-gradient-to-b from-[#e0c97b]/10 to-transparent">
                                                     <span className="absolute top-6 left-6 bg-[#e0c97b]/10 border border-[#e0c97b]/30 text-[#e0c97b] text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest">Featured Shiny</span>
-                                                    <img src="https://play.pokemonshowdown.com/sprites/gen5ani-shiny/pikachu.gif" className="h-28 sprite-glow-accent" />
+                                                    <img src="https://play.pokemonshowdown.com/sprites/gen5ani-shiny/pikachu.gif" className="h-28 sprite-glow" style={{filter: 'drop-shadow(0 0 25px rgba(224, 201, 123, 0.4))'}} />
                                                 </div>
                                                 <div className="p-10 pt-4 flex-grow">
                                                     <h3 className="text-2xl font-black mb-1">Team Spotlight</h3>
@@ -330,7 +364,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Storm Spotlight */}
                                             <div className="spotlight-card flex flex-col">
                                                 <div className="spotlight-header bg-gradient-to-b from-purple-900/10 to-transparent">
                                                     <span className="absolute top-6 left-6 bg-purple-600/10 border border-purple-500/20 text-purple-400 text-[9px] font-black px-3 py-1 rounded uppercase tracking-widest">Monthly Legendary</span>
@@ -346,95 +379,144 @@
                                     </div>
                                 </section>
 
-                                {/* MIDDLE CONTENT */}
-                                <div className="max-w-7xl mx-auto px-6 py-20 w-full">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                                        <div className="lg:col-span-2 space-y-12">
-                                            {/* Daily Random Hunt */}
-                                            <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[2rem] overflow-hidden">
-                                                <h2 className="text-2xl font-black mb-10 flex items-center gap-3 text-[#e0c97b] uppercase tracking-tighter italic">
-                                                    <i data-lucide="sparkles" className="w-6 h-6"></i> Daily Random Hunt
-                                                </h2>
-                                                <div className="flex flex-col md:flex-row items-center gap-12 bg-black/40 p-10 rounded-3xl border border-white/5">
-                                                    <div className="relative">
-                                                        <div className="absolute inset-0 bg-[#e0c97b]/05 blur-[80px] rounded-full"></div>
-                                                        <img src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${dailyHunt.name}.gif`} className="h-36 relative z-10" />
-                                                    </div>
-                                                    <div className="text-center md:text-left flex-1">
-                                                        <h3 className="text-4xl font-black capitalize text-white mb-3 italic tracking-tighter">{dailyHunt.name}</h3>
-                                                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-8">
-                                                            <span className="flex items-center gap-2 text-zinc-500 font-bold uppercase text-[10px] tracking-widest">
-                                                                <i data-lucide="map-pin" className="w-3.5 h-3.5 text-[#e0c97b]"></i> {dailyHunt.location}
-                                                            </span>
-                                                            <span className="bg-[#e0c97b]/10 text-[#e0c97b] text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-[#e0c97b]/20">
-                                                                {dailyHunt.method}
-                                                            </span>
-                                                        </div>
-                                                        <button 
-                                                            onClick={navigateToHuntInfo}
-                                                            className="btn-accent px-10 py-3.5 rounded-xl font-black transition-all flex items-center gap-2 mx-auto md:mx-0 uppercase text-[10px] tracking-[0.2em]"
-                                                        >
-                                                            More Info <i data-lucide="arrow-right" className="w-4 h-4"></i>
-                                                        </button>
-                                                    </div>
+                                <div className="max-w-7xl mx-auto px-6 py-20 w-full space-y-24">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[2rem] overflow-hidden">
+                                            <h2 className="text-2xl font-black mb-10 flex items-center gap-3 text-[#e0c97b] uppercase tracking-tighter italic">
+                                                <i data-lucide="sparkles" className="w-6 h-6"></i> Daily Random Hunt
+                                            </h2>
+                                            <div className="flex flex-col md:flex-row items-center gap-12 bg-black/40 p-10 rounded-3xl border border-white/5">
+                                                <div className="relative">
+                                                    <div className="absolute inset-0 bg-[#e0c97b]/05 blur-[80px] rounded-full"></div>
+                                                    <img src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${dailyHunt.name}.gif`} className="h-36 relative z-10" />
                                                 </div>
-                                            </div>
-
-                                            {/* Featured Video */}
-                                            <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[2rem]">
-                                                <h2 className="text-2xl font-black mb-8 flex items-center gap-3 text-red-500 uppercase tracking-tighter italic">
-                                                    <i data-lucide="youtube" className="w-6 h-6"></i> Featured Video
-                                                </h2>
-                                                <div className="aspect-video bg-black rounded-3xl flex items-center justify-center border border-white/5 group relative cursor-pointer overflow-hidden shadow-2xl">
-                                                    <div className="text-center group-hover:scale-105 transition-transform duration-500">
-                                                        <div className="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-red-600/20">
-                                                            <i data-lucide="play" className="w-10 h-10 text-white fill-current ml-1"></i>
-                                                        </div>
-                                                        <p className="mt-8 text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">Latest Team Showcase</p>
+                                                <div className="text-center md:text-left flex-1">
+                                                    <h3 className="text-4xl font-black capitalize text-white mb-3 italic tracking-tighter">{dailyHunt.name}</h3>
+                                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-8">
+                                                        <span className="flex items-center gap-2 text-zinc-500 font-bold uppercase text-[10px] tracking-widest">
+                                                            <i data-lucide="map-pin" className="w-3.5 h-3.5 text-[#e0c97b]"></i> {dailyHunt.location}
+                                                        </span>
+                                                        <span className="bg-[#e0c97b]/10 text-[#e0c97b] text-[9px] px-3 py-1 rounded-full font-black uppercase tracking-widest border border-[#e0c97b]/20">
+                                                            {dailyHunt.method}
+                                                        </span>
                                                     </div>
+                                                    <button onClick={navigateToHuntInfo} className="btn-accent px-10 py-3.5 rounded-xl font-black transition-all flex items-center gap-2 mx-auto md:mx-0 uppercase text-[10px] tracking-[0.2em]">
+                                                        More Info <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Application Sidebar */}
-                                        <div className="space-y-8">
-                                            <div className="bg-[#0a151b]/40 border border-white/5 p-10 rounded-[2.5rem] sticky top-28 shadow-2xl backdrop-blur-md">
-                                                <div className="mb-10">
-                                                    <h3 className="text-3xl font-black uppercase italic tracking-tighter">Apply Now</h3>
-                                                    <p className="text-zinc-600 text-[10px] mt-1 font-black uppercase tracking-[0.3em]">Join the Legacy</p>
-                                                </div>
-                                                <div className="space-y-5">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">In-game Name</label>
-                                                        <input type="text" className="w-full p-4 rounded-xl outline-none text-sm text-white" placeholder="e.g. Red" />
+                                        <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[2rem]">
+                                            <h2 className="text-2xl font-black mb-8 flex items-center gap-3 text-red-500 uppercase tracking-tighter italic">
+                                                <i data-lucide="youtube" className="w-6 h-6"></i> Featured Video
+                                            </h2>
+                                            <div className="aspect-video bg-black rounded-3xl flex items-center justify-center border border-white/5 group relative cursor-pointer overflow-hidden shadow-2xl">
+                                                <div className="text-center group-hover:scale-105 transition-transform duration-500">
+                                                    <div className="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-red-600/20">
+                                                        <i data-lucide="play" className="w-10 h-10 text-white fill-current ml-1"></i>
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Discord</label>
-                                                        <input type="text" className="w-full p-4 rounded-xl outline-none text-sm text-white" placeholder="User#0000" />
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Region</label>
-                                                            <select className="w-full p-4 rounded-xl outline-none text-xs text-white appearance-none cursor-pointer">
-                                                                <option>Kanto</option><option>Johto</option><option>Hoenn</option><option>Sinnoh</option><option>Unova</option>
-                                                            </select>
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Exp.</label>
-                                                            <select className="w-full p-4 rounded-xl outline-none text-xs text-white appearance-none cursor-pointer">
-                                                                <option>Beginner</option><option>Intermediate</option><option>Experienced</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Motivation</label>
-                                                        <textarea className="w-full p-4 rounded-xl h-28 outline-none text-sm text-white resize-none" placeholder="Tell us why..."></textarea>
-                                                    </div>
-                                                    <button onClick={() => alert('Application Sent!')} className="w-full btn-accent font-black py-5 rounded-xl transition-all uppercase tracking-[0.2em] text-[11px] mt-4">Send Application</button>
+                                                    <p className="mt-8 text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">Latest Team Showcase</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <section id="apply" className="bg-[#0a151b]/40 border border-[#e0c97b]/10 p-12 lg:p-20 rounded-[3rem] shadow-2xl backdrop-blur-md relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                                            <i data-lucide="trophy" className="w-64 h-64 text-[#e0c97b]"></i>
+                                        </div>
+                                        
+                                        <div className="relative z-10 max-w-5xl mx-auto">
+                                            <div className="mb-16 text-center">
+                                                <h3 className="text-5xl font-black uppercase italic tracking-tighter mb-4">Apply Now</h3>
+                                                <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.5em]">Join the Golden Legacy</p>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                                <div className="lg:col-span-1 space-y-6">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">In-game Name</label>
+                                                        <input type="text" className="w-full p-4 rounded-2xl outline-none text-sm" placeholder="e.g. Red" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Discord ID</label>
+                                                        <input type="text" className="w-full p-4 rounded-2xl outline-none text-sm" placeholder="User#0000" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Favorite Shiny?</label>
+                                                        <input type="text" className="w-full p-4 rounded-2xl outline-none text-sm" placeholder="e.g. Umbreon" />
+                                                    </div>
+                                                </div>
+
+                                                <div className="lg:col-span-1 space-y-6">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Preferred Region</label>
+                                                        <div className="select-wrapper">
+                                                            <select className="w-full p-4 rounded-2xl outline-none text-xs cursor-pointer">
+                                                                <option disabled selected>Select Region</option>
+                                                                <option>Kanto</option><option>Johto</option><option>Hoenn</option><option>Sinnoh</option><option>Unova</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Hunting Experience</label>
+                                                        <div className="select-wrapper">
+                                                            <select className="w-full p-4 rounded-2xl outline-none text-xs cursor-pointer">
+                                                                <option disabled selected>Select Level</option>
+                                                                <option>Beginner (Just starting out)</option>
+                                                                <option>Intermediate (Few shinies found)</option>
+                                                                <option>Experienced (Shiny veteran)</option>
+                                                                <option>Legendary (100k+ encounters)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 block">Why join us?</label>
+                                                        <textarea className="w-full p-4 rounded-2xl h-[104px] outline-none text-sm resize-none" placeholder="Tell us about your passion..."></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div className="lg:col-span-1 flex flex-col justify-end">
+                                                    <div className="bg-[#e0c97b]/5 border border-[#e0c97b]/20 p-8 rounded-[2rem] mb-6 hidden lg:block">
+                                                        <div className="flex items-center gap-3 text-[#e0c97b] mb-4">
+                                                            <i data-lucide="info" className="w-5 h-5"></i>
+                                                            <h4 className="font-black text-xs uppercase tracking-widest">Notice</h4>
+                                                        </div>
+                                                        <p className="text-zinc-500 text-[11px] leading-relaxed uppercase tracking-tighter">
+                                                            Applications are reviewed within 48 hours. Make sure your Discord DMs are open!
+                                                        </p>
+                                                    </div>
+                                                    <button onClick={() => alert('Application Sent!')} className="w-full btn-accent font-black py-6 rounded-2xl transition-all uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3">
+                                                        Send Application <i data-lucide="sparkle" className="w-4 h-4 fill-current"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentPage === 'team' && (
+                            <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
+                                <div className="mb-16 text-center">
+                                    <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">The <span className="text-[#e0c97b]">Golden</span> Roster</h1>
+                                    <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">Meet the elite hunters</p>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {TEAM_MEMBERS.map((member, i) => (
+                                        <div key={i} className="bg-white/[0.01] border border-white/5 p-8 rounded-[2rem] flex items-center gap-6 group hover:border-[#e0c97b]/30 transition-all">
+                                            <div className="w-20 h-20 bg-black/40 rounded-2xl flex items-center justify-center p-2 relative overflow-hidden">
+                                                <img src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${member.favorite.split('-')[0]}.gif`} className="h-12 relative z-10" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-black italic uppercase tracking-tighter">{member.name}</h3>
+                                                <p className="text-[#e0c97b] text-[10px] font-black uppercase tracking-widest mb-1">{member.role}</p>
+                                                <p className="text-zinc-600 text-[9px] uppercase font-bold">Fav: {member.favorite.replace('-shiny', '')}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -448,13 +530,7 @@
                                     </div>
                                     <div className="relative w-full md:w-[400px]">
                                         <i data-lucide="search" className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 w-5 h-5"></i>
-                                        <input 
-                                            type="text" 
-                                            value={searchTerm}
-                                            placeholder="Search by name..." 
-                                            className="w-full bg-white/[0.01] border border-white/5 py-4 pl-14 pr-6 rounded-2xl outline-none focus:border-[#e0c97b] text-sm text-white"
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
+                                        <input type="text" value={searchTerm} placeholder="Search by name..." className="w-full bg-white/[0.01] border border-white/5 py-4 pl-14 pr-6 rounded-2xl outline-none focus:border-[#e0c97b] text-sm text-white" onChange={(e) => setSearchTerm(e.target.value)} />
                                     </div>
                                 </div>
 
@@ -473,22 +549,71 @@
                             </div>
                         )}
 
-                        {/* Restricted States */}
-                        {(currentPage === 'team' || currentPage === 'events' || currentPage === 'community') && (
-                            <div className="flex flex-col items-center justify-center py-40 max-w-7xl mx-auto px-6">
-                                <div className="bg-white/[0.01] p-12 rounded-full mb-10 border border-white/5">
-                                    <i data-lucide="lock" className="w-16 h-16 text-[#e0c97b]/20"></i>
+                        {currentPage === 'events' && (
+                            <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
+                                <div className="mb-16 text-center">
+                                    <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">Team <span className="text-[#e0c97b]">Events</span></h1>
+                                    <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">Upcoming hunts and games</p>
                                 </div>
-                                <h2 className="text-4xl font-black mb-4 tracking-tighter uppercase italic">Access Restricted</h2>
-                                <p className="text-zinc-600 mb-12 max-w-sm text-center font-bold uppercase text-[10px] tracking-widest leading-loose opacity-80">Authorized Team Members Only. Please authenticate via Discord.</p>
-                                <button className="btn-accent px-12 py-5 rounded-2xl font-black transition-all uppercase tracking-[0.3em] text-[10px] flex items-center gap-4">
-                                    Authenticate <i data-lucide="shield-check" className="w-4 h-4"></i>
-                                </button>
+                                <div className="space-y-6 max-w-4xl mx-auto">
+                                    {EVENTS.map((event, i) => (
+                                        <div key={i} className="bg-white/[0.01] border border-white/5 p-10 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center gap-8 group hover:bg-[#e0c97b]/05 transition-all">
+                                            <div className="flex items-center gap-8">
+                                                <div className="w-16 h-16 bg-[#e0c97b]/10 rounded-2xl flex flex-col items-center justify-center text-[#e0c97b] border border-[#e0c97b]/20">
+                                                    <span className="text-[10px] font-black uppercase">APR</span>
+                                                    <span className="text-xl font-black">{event.date.match(/\d+/)}</span>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter">{event.title}</h3>
+                                                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">{event.type} Event • Global Channel 1</p>
+                                                </div>
+                                            </div>
+                                            <button className="btn-accent px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest">Sign Up</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {currentPage === 'community' && (
+                            <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
+                                <div className="mb-16 text-center">
+                                    <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">Golden <span className="text-[#e0c97b]">Guidelines</span></h1>
+                                    <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">The code we hunt by</p>
+                                </div>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                    <div className="bg-white/[0.01] border border-white/5 p-12 rounded-[3rem]">
+                                        <h2 className="text-2xl font-black italic uppercase text-[#e0c97b] mb-8">Team Rules</h2>
+                                        <ul className="space-y-6">
+                                            {[
+                                                "Be respectful to all team members and the wider PokeMMO community.",
+                                                "No toxicity or elitism based on encounter counts or luck.",
+                                                "Help others when they need advice on hunting locations or methods.",
+                                                "Share your sparkles! Post your finds in the discord.",
+                                                "No hacking, botting, or third-party tools allowed."
+                                            ].map((rule, i) => (
+                                                <li key={i} className="flex gap-4 items-start">
+                                                    <span className="bg-[#e0c97b]/10 text-[#e0c97b] w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">{i+1}</span>
+                                                    <p className="text-zinc-500 text-sm leading-relaxed">{rule}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="bg-[#5865F2]/05 border border-[#5865F2]/20 p-12 rounded-[3rem] flex flex-col items-center justify-center text-center">
+                                        <i data-lucide="message-square" className="w-20 h-20 text-[#5865F2] mb-8"></i>
+                                        <h2 className="text-2xl font-black italic uppercase text-white mb-4">Join Our Discord</h2>
+                                        <p className="text-zinc-500 text-sm mb-10 max-w-xs uppercase tracking-tighter leading-relaxed">
+                                            The heart of our community. Join for live hunts, voice chats, and team announcements.
+                                        </p>
+                                        <a href={DISCORD_LINK} target="_blank" className="bg-[#5865F2] hover:bg-[#4752C4] px-12 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] transition-all">
+                                            Connect Now
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </main>
 
-                    {/* MINIMALIST FOOTER */}
                     <footer className="border-t border-white/5 py-12 bg-[#050d11]">
                         <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
                             <p className="text-zinc-700 font-black tracking-[0.4em] uppercase text-[9px] flex items-center gap-2">
