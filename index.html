@@ -69,7 +69,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-dark); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
         
-        /* Interactive Feature Cards */
         .feature-card {
             background: rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(12px);
@@ -86,7 +85,6 @@
             transform: translateY(-5px);
         }
 
-        /* Spotlight cards */
         .spotlight-card {
             background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -111,7 +109,6 @@
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
         }
 
-        /* Utility buttons */
         .btn-accent {
             background-color: var(--accent-color);
             color: #050d11;
@@ -140,32 +137,6 @@
             background-color: #0d1a21;
             color: white;
         }
-
-        /* Custom Dropdown Styling */
-        .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        .select-wrapper::after {
-            content: '';
-            position: absolute;
-            right: 1.25rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1rem;
-            height: 1rem;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0c97b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-            background-size: contain;
-            background-repeat: no-repeat;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding-right: 3rem !important;
-        }
     </style>
 </head>
 <body class="custom-scrollbar">
@@ -187,21 +158,31 @@
             { id: 144, name: "articuno", location: "Seafoam Islands", method: "Legendary" },
             { id: 243, name: "raikou", location: "Roamer", method: "Legendary" },
         ];
-
-        const TEAM_MEMBERS = [
-            { name: "Pein", role: "Leader", favorite: "umbreon-shiny" },
-            { name: "Goldy", role: "Officer", favorite: "rayquaza-shiny" },
-            { name: "Luster", role: "Officer", favorite: "metagross-shiny" },
-            { name: "Aura", role: "Member", favorite: "lucario-shiny" },
-            { name: "Spark", role: "Member", favorite: "luxray-shiny" },
-            { name: "Zenith", role: "Member", favorite: "gardevoir-shiny" }
-        ];
-
-        const EVENTS = [
-            { title: "Weekly Safari Sprint", date: "April 15th", type: "Race" },
-            { title: "Golden Hour: Horde Hunt", date: "April 22nd", type: "Hunt" },
-            { title: "Pheno Chase Championship", date: "May 1st", type: "Competition" }
-        ];
+		
+		const INITIAL_TEAM = [
+			{ 
+				id: 1, 
+				name: "ObsidianOnix", 
+				role: "Leader", 
+				pokemon: [
+					{ name: "blaziken", ivs: "16/31/30/8/12/29", encounters: "544", method: "Egg Hatching" }
+				] 
+			}
+		];
+		
+		const INITIAL_EVENTS = [
+			{
+				id: 1,
+				title: "Kanto Safari Catch-Off",
+				date: "2024-05-15",
+				time: "20:00 UTC",
+				location: "Kanto Safari Zone (Ch. 1)",
+                targetPokemon: "dratini",
+				description: "Join us for a team catch-off event! Highest total IVs wins the grand prize. All team members welcome.",
+				prizePool: "1,000,000 Yen + Shiny Charm",
+				type: "Catching"
+			}
+		];
 
         const SparkleEffect = () => {
             const sparkles = useMemo(() => {
@@ -238,10 +219,44 @@
         const App = () => {
             const [currentPage, setCurrentPage] = useState('home');
             const [searchTerm, setSearchTerm] = useState('');
+			
+			const [teamMembers, setTeamMembers] = useState(INITIAL_TEAM);
+			const [isStaffMode, setIsStaffMode] = useState(false);
+            const [editingMemberId, setEditingMemberId] = useState(null);
+			const [activePokeIndices, setActivePokeIndices] = useState({});
+			
+            const [newMember, setNewMember] = useState({ 
+				name: '', 
+				role: 'Member', 
+				pokemon: [{ name: '', ivs: '', encounters: '', method: 'Horde' }] 
+			});
+
+            const [editForm, setEditForm] = useState(null);
+			
+			const [events, setEvents] = useState(INITIAL_EVENTS);
+			const [newEvent, setNewEvent] = useState({
+				title: '',
+				date: '',
+				time: '',
+				location: '',
+                targetPokemon: '',
+				description: '',
+				prizePool: '',
+				type: 'Catching'
+			});
+
+            // Application Form State
+            const [appSubmitted, setAppSubmitted] = useState(false);
+            const [appData, setAppData] = useState({
+                ign: '',
+                discord: '',
+                hours: '',
+                goals: ''
+            });
 
             useEffect(() => { 
                 if (window.lucide) lucide.createIcons(); 
-            }, [currentPage, searchTerm]);
+            }, [currentPage, searchTerm, isStaffMode, editingMemberId, editForm, events, appSubmitted]);
 
             const dailyHunt = useMemo(() => {
                 const today = new Date().toDateString();
@@ -256,6 +271,15 @@
                 setCurrentPage('pokedex');
             };
 
+            const handleAppSubmit = (e) => {
+                e.preventDefault();
+                setAppSubmitted(true);
+                setTimeout(() => {
+                    setAppSubmitted(false);
+                    setAppData({ ign: '', discord: '', hours: '', goals: '' });
+                }, 5000);
+            };
+
             const NavItem = ({ id, icon, label }) => (
                 <button 
                     onClick={() => { setCurrentPage(id); setSearchTerm(''); }}
@@ -265,6 +289,86 @@
                     <span className="font-bold text-xs tracking-widest uppercase">{label}</span>
                 </button>
             );
+			
+			const handleAddMember = (e) => {
+				e.preventDefault();
+				if (!newMember.name) return;
+				const memberToAdd = { ...newMember, id: Date.now() };
+				setTeamMembers([memberToAdd, ...teamMembers]);
+				setNewMember({ 
+					name: '', 
+					role: 'Member', 
+					pokemon: [{ name: '', ivs: '', encounters: '', method: 'Horde' }] 
+				});
+			};
+
+            const handleUpdateMember = (e) => {
+                e.preventDefault();
+                setTeamMembers(teamMembers.map(m => m.id === editForm.id ? editForm : m));
+                setEditingMemberId(null);
+                setEditForm(null);
+            };
+
+            const startEditing = (member) => {
+                setEditForm({...member});
+                setEditingMemberId(member.id);
+            };
+
+			const addPokeField = (isEdit = false) => {
+				if(isEdit) {
+                    setEditForm({
+                        ...editForm,
+                        pokemon: [...editForm.pokemon, { name: '', ivs: '', encounters: '', method: 'Horde' }]
+                    });
+                } else {
+                    setNewMember({ 
+                        ...newMember, 
+                        pokemon: [...newMember.pokemon, { name: '', ivs: '', encounters: '', method: 'Horde' }] 
+                    });
+                }
+			};
+
+            const removePokeField = (idx, isEdit = false) => {
+                if(isEdit) {
+                    const updated = editForm.pokemon.filter((_, i) => i !== idx);
+                    setEditForm({ ...editForm, pokemon: updated });
+                } else {
+                    const updated = newMember.pokemon.filter((_, i) => i !== idx);
+                    setNewMember({ ...newMember, pokemon: updated });
+                }
+            };
+
+			const updatePokeData = (idx, field, val, isEdit = false) => {
+				if(isEdit) {
+                    const updated = [...editForm.pokemon];
+                    updated[idx][field] = val;
+                    setEditForm({ ...editForm, pokemon: updated });
+                } else {
+                    const updated = [...newMember.pokemon];
+                    updated[idx][field] = val;
+                    setNewMember({ ...newMember, pokemon: updated });
+                }
+			};
+			
+			const handleAddEvent = (e) => {
+				e.preventDefault();
+				if (!newEvent.title || !newEvent.date) return;
+				const eventToAdd = { ...newEvent, id: Date.now() };
+				setEvents([eventToAdd, ...events]);
+				setNewEvent({
+					title: '', date: '', time: '', location: '', targetPokemon: '', description: '', prizePool: '', type: 'Catching'
+				});
+			};
+
+			const deleteEvent = (id) => {
+				setEvents(events.filter(event => event.id !== id));
+			};
+
+            const deleteMember = (id) => {
+                if(confirm('Are you sure you want to remove this member?')) {
+                    setTeamMembers(teamMembers.filter(m => m.id !== id));
+                }
+            };
 
             return (
                 <div className="min-h-screen flex flex-col">
@@ -421,7 +525,7 @@
                                             </div>
                                         </div>
                                     </div>
-
+                                    
                                     <section id="apply" className="bg-[#0a151b]/40 border border-[#e0c97b]/10 p-12 lg:p-20 rounded-[3rem] shadow-2xl backdrop-blur-md relative overflow-hidden">
                                         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
                                             <i data-lucide="trophy" className="w-64 h-64 text-[#e0c97b]"></i>
@@ -498,28 +602,207 @@
                             </div>
                         )}
 
-                        {currentPage === 'team' && (
-                            <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
-                                <div className="mb-16 text-center">
-                                    <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">The <span className="text-[#e0c97b]">Golden</span> Roster</h1>
-                                    <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">Meet the elite hunters</p>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {TEAM_MEMBERS.map((member, i) => (
-                                        <div key={i} className="bg-white/[0.01] border border-white/5 p-8 rounded-[2rem] flex items-center gap-6 group hover:border-[#e0c97b]/30 transition-all">
-                                            <div className="w-20 h-20 bg-black/40 rounded-2xl flex items-center justify-center p-2 relative overflow-hidden">
-                                                <img src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${member.favorite.split('-')[0]}.gif`} className="h-12 relative z-10" />
+						{currentPage === 'team' && (
+							<div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
+								<div className="mb-16 flex justify-between items-end">
+									<div>
+										<h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">
+											The <span className="text-[#e0c97b]">Golden</span> Roster
+										</h1>
+										<p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">
+											Members and their prized collections
+										</p>
+									</div>
+									
+									<button 
+										onClick={() => {
+                                            setIsStaffMode(!isStaffMode);
+                                            setEditingMemberId(null);
+                                        }} 
+										className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 border rounded-lg transition-colors ${isStaffMode ? 'border-[#e0c97b] text-[#e0c97b]' : 'border-white/10 text-zinc-500 hover:border-white/20'}`}
+									>
+										{isStaffMode ? 'Exit Staff Access' : 'Staff Access'}
+									</button>
+								</div>
+
+								{(isStaffMode || editingMemberId) && (
+									<div className="mb-12 bg-white/5 border border-white/10 p-8 rounded-[2rem] animate-in slide-in-from-top-4">
+										<div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-3">
+											    <div className="w-2 h-2 rounded-full bg-[#e0c97b] animate-pulse"></div>
+											    <h3 className="text-2xl font-black italic uppercase text-[#e0c97b]">
+                                                    {editingMemberId ? 'Edit Team Member' : 'Add Team Member'}
+                                                </h3>
                                             </div>
-                                            <div>
-                                                <h3 className="text-xl font-black italic uppercase tracking-tighter">{member.name}</h3>
-                                                <p className="text-[#e0c97b] text-[10px] font-black uppercase tracking-widest mb-1">{member.role}</p>
-                                                <p className="text-zinc-600 text-[9px] uppercase font-bold">Fav: {member.favorite.replace('-shiny', '')}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                            {editingMemberId && (
+                                                <button onClick={() => { setEditingMemberId(null); setEditForm(null); }} className="text-[10px] font-black uppercase text-zinc-500 hover:text-white">Cancel Edit</button>
+                                            )}
+										</div>
+										
+										<form onSubmit={editingMemberId ? handleUpdateMember : handleAddMember} className="space-y-6">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">In-Game Name</label>
+													<input 
+                                                        required 
+                                                        placeholder="e.g. Pein" 
+                                                        className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" 
+                                                        value={editingMemberId ? editForm.name : newMember.name} 
+                                                        onChange={e => editingMemberId ? setEditForm({...editForm, name: e.target.value}) : setNewMember({...newMember, name: e.target.value})} 
+                                                    />
+												</div>
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Team Rank</label>
+													<input 
+                                                        required 
+                                                        placeholder="e.g. Officer" 
+                                                        className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" 
+                                                        value={editingMemberId ? editForm.role : newMember.role} 
+                                                        onChange={e => editingMemberId ? setEditForm({...editForm, role: e.target.value}) : setNewMember({...newMember, role: e.target.value})} 
+                                                    />
+												</div>
+											</div>
+											
+											<div className="space-y-4">
+												<div className="flex items-center justify-between ml-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Shiny Pokemon Details</label>
+                                                    <button type="button" onClick={() => addPokeField(!!editingMemberId)} className="text-[10px] font-black uppercase text-[#e0c97b] hover:underline">+ Add Pokemon</button>
+                                                </div>
+												{(editingMemberId ? editForm.pokemon : newMember.pokemon).map((p, idx) => (
+													<div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 bg-black/40 rounded-2xl border border-white/5 shadow-inner relative group">
+														<input placeholder="Species" className="p-3 rounded-lg bg-white/5 border border-white/10 text-xs text-white outline-none focus:border-[#e0c97b]" value={p.name} onChange={e => updatePokeData(idx, 'name', e.target.value, !!editingMemberId)} />
+														<input placeholder="IVs" className="p-3 rounded-lg bg-white/5 border border-white/10 text-xs text-white outline-none focus:border-[#e0c97b]" value={p.ivs} onChange={e => updatePokeData(idx, 'ivs', e.target.value, !!editingMemberId)} />
+														<input placeholder="Encounters" className="p-3 rounded-lg bg-white/5 border border-white/10 text-xs text-white outline-none focus:border-[#e0c97b]" value={p.encounters} onChange={e => updatePokeData(idx, 'encounters', e.target.value, !!editingMemberId)} />
+														<select 
+															className="p-3 rounded-lg bg-[#0a1217] border border-white/10 text-xs text-white outline-none focus:border-[#e0c97b] appearance-none cursor-pointer" 
+															value={p.method} 
+															onChange={e => updatePokeData(idx, 'method', e.target.value, !!editingMemberId)}
+														>
+															<option value="Horde">Horde</option>
+															<option value="Egg">Egg</option>
+															<option value="Single Encounter">Single Encounter</option>
+															<option value="Fossil Revive">Fossil Revive</option>
+														</select>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => removePokeField(idx, !!editingMemberId)}
+                                                            className="flex items-center justify-center p-3 rounded-lg text-zinc-600 hover:text-red-500 transition-colors"
+                                                            title="Remove Pokémon"
+                                                        >
+                                                            <i data-lucide="x" className="w-4 h-4"></i>
+                                                        </button>
+													</div>
+												))}
+											</div>
+
+											<div className="flex pt-4">
+												<button type="submit" className="bg-[#e0c97b] text-black w-full py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#f1dfa3] transform active:scale-95 transition-all">
+													{editingMemberId ? 'Save Changes' : 'Finalize & Save Member'}
+												</button>
+											</div>
+										</form>
+									</div>
+								)}
+
+								<div className="space-y-10">
+									{teamMembers.length === 0 ? (
+										<div className="text-center py-20 border border-dashed border-white/10 rounded-[3rem]">
+											<p className="text-zinc-600 font-black uppercase tracking-widest text-xs">No members found in the database.</p>
+										</div>
+									) : (
+										teamMembers.map((member) => {
+											const selectedIdx = activePokeIndices[member.id] || 0;
+											const activePoke = member.pokemon[selectedIdx];
+											
+											return (
+												<div key={member.id} className={`bg-white/[0.02] border rounded-[2.5rem] p-8 hover:bg-white/[0.03] transition-colors group ${editingMemberId === member.id ? 'border-[#e0c97b] ring-1 ring-[#e0c97b]' : 'border-white/5'}`}>
+													<div className="flex items-center justify-between mb-8">
+                                                        <div className="flex items-center gap-4">
+														    <div className="px-3 py-1 rounded-full bg-[#e0c97b]/10 border border-[#e0c97b]/20 text-[#e0c97b] text-[9px] font-black uppercase tracking-widest">
+															    {member.role}
+														    </div>
+														    <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white group-hover:text-[#e0c97b] transition-colors">
+															    {member.name}
+														    </h2>
+                                                        </div>
+
+                                                        {isStaffMode && (
+                                                            <div className="flex items-center gap-3">
+                                                                <button 
+                                                                    onClick={() => startEditing(member)} 
+                                                                    className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-zinc-500 hover:text-[#e0c97b] hover:border-[#e0c97b] transition-all"
+                                                                    title="Edit Member"
+                                                                >
+                                                                    <i data-lucide="edit-3" className="w-4 h-4"></i>
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => deleteMember(member.id)} 
+                                                                    className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-zinc-500 hover:text-red-500 hover:border-red-500 transition-all"
+                                                                    title="Delete Member"
+                                                                >
+                                                                    <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                                </button>
+                                                            </div>
+                                                        )}
+													</div>
+													
+													<div className="flex flex-col lg:flex-row gap-10">
+														<div className="flex flex-wrap gap-3 max-w-md">
+															{member.pokemon.map((poke, idx) => (
+																<div 
+																	key={idx} 
+																	className={`w-20 h-20 rounded-2xl flex items-center justify-center cursor-pointer transition-all border-2 ${
+																		selectedIdx === idx 
+																		? 'bg-[#e0c97b]/10 border-[#e0c97b] shadow-[0_0_20px_rgba(224,201,123,0.1)]' 
+																		: 'bg-black/40 border-white/5 hover:border-white/20'
+																	}`}
+																	onClick={() => setActivePokeIndices(p => ({...p, [member.id]: idx}))}
+																>
+																	<img 
+																		src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${poke.name.toLowerCase().replace(/\s+/g, '')}.gif`} 
+																		className="max-h-14 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" 
+																		onError={(e) => { e.target.src = 'https://play.pokemonshowdown.com/sprites/item/poke-ball.png'; }} 
+																	/>
+																</div>
+															))}
+														</div>
+
+														<div className="flex-grow bg-black/40 rounded-3xl p-8 border border-white/5 relative overflow-hidden">
+															<div className="absolute top-0 right-0 p-4 opacity-5">
+																<i data-lucide="award" className="w-20 h-20"></i>
+															</div>
+															
+															{activePoke ? (
+																<div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+																	<div className="space-y-1">
+																		<p className="text-[9px] font-black uppercase text-zinc-600 tracking-widest">Species</p>
+																		<p className="text-sm font-bold capitalize text-white">{activePoke.name || 'Unknown'}</p>
+																	</div>
+																	<div className="space-y-1">
+																		<p className="text-[9px] font-black uppercase text-zinc-600 tracking-widest">Potential (IVs)</p>
+																		<p className="text-sm font-bold text-white">{activePoke.ivs || 'N/A'}</p>
+																	</div>
+																	<div className="space-y-1">
+																		<p className="text-[9px] font-black uppercase text-zinc-600 tracking-widest">Total Counts</p>
+																		<p className="text-sm font-bold text-white">{activePoke.encounters || '0'}</p>
+																	</div>
+																	<div className="space-y-1">
+																		<p className="text-[9px] font-black uppercase text-zinc-600 tracking-widest">Encounter Method</p>
+																		<p className="text-sm font-bold text-white">{activePoke.method || 'Unknown'}</p>
+																	</div>
+																</div>
+															) : (
+																<p className="text-zinc-600 text-[10px] font-bold uppercase italic">Select a sprite to view data...</p>
+															)}
+														</div>
+													</div>
+												</div>
+											);
+										})
+									)}
+								</div>
+							</div>
+						)}
 
                         {currentPage === 'pokedex' && (
                             <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
@@ -549,31 +832,170 @@
                             </div>
                         )}
 
-                        {currentPage === 'events' && (
-                            <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
-                                <div className="mb-16 text-center">
-                                    <h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">Team <span className="text-[#e0c97b]">Events</span></h1>
-                                    <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">Upcoming hunts and games</p>
-                                </div>
-                                <div className="space-y-6 max-w-4xl mx-auto">
-                                    {EVENTS.map((event, i) => (
-                                        <div key={i} className="bg-white/[0.01] border border-white/5 p-10 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center gap-8 group hover:bg-[#e0c97b]/05 transition-all">
-                                            <div className="flex items-center gap-8">
-                                                <div className="w-16 h-16 bg-[#e0c97b]/10 rounded-2xl flex flex-col items-center justify-center text-[#e0c97b] border border-[#e0c97b]/20">
-                                                    <span className="text-[10px] font-black uppercase">APR</span>
-                                                    <span className="text-xl font-black">{event.date.match(/\d+/)}</span>
+						{currentPage === 'events' && (
+							<div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
+								<div className="mb-16 flex justify-between items-end">
+									<div>
+										<h1 className="text-5xl font-black italic tracking-tighter uppercase mb-4">
+											Team <span className="text-[#e0c97b]">Events</span>
+										</h1>
+										<p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.5em]">
+											Scheduled competitions and meetups
+										</p>
+									</div>
+									
+									<button 
+										onClick={() => setIsStaffMode(!isStaffMode)} 
+										className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 border rounded-lg transition-colors ${isStaffMode ? 'border-[#e0c97b] text-[#e0c97b]' : 'border-white/10 text-zinc-500 hover:border-white/20'}`}
+									>
+										{isStaffMode ? 'Exit Staff Access' : 'Staff Access'}
+									</button>
+								</div>
+
+								{isStaffMode && (
+									<div className="mb-12 bg-white/5 border border-white/10 p-8 rounded-[2rem] animate-in slide-in-from-top-4">
+										<div className="flex items-center gap-3 mb-6">
+											<div className="w-2 h-2 rounded-full bg-[#e0c97b] animate-pulse"></div>
+											<h3 className="text-2xl font-black italic uppercase text-[#e0c97b]">Schedule New Event</h3>
+										</div>
+										
+										<form onSubmit={handleAddEvent} className="space-y-6">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Event Title</label>
+													<input required placeholder="e.g. Weekly Catch Contest" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.title} onChange={e => setNewEvent({...newEvent, title: e.target.value})} />
+												</div>
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Event Type</label>
+													<select className="w-full p-4 rounded-xl bg-[#0a1217] border border-white/10 text-white focus:border-[#e0c97b] outline-none appearance-none cursor-pointer" value={newEvent.type} onChange={e => setNewEvent({...newEvent, type: e.target.value})}>
+														<option value="Catching">Catching Contest</option>
+														<option value="Giveaway">Giveaway</option>
+														<option value="Tournament">PvP Tournament</option>
+														<option value="Meetup">Team Meetup</option>
+													</select>
+												</div>
+											</div>
+
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Date</label>
+													<input required type="date" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} />
+												</div>
+												<div className="space-y-2">
+													<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Time (UTC)</label>
+													<input required placeholder="e.g. 19:00 UTC" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.time} onChange={e => setNewEvent({...newEvent, time: e.target.value})} />
+												</div>
+											</div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">In-Game Location</label>
+                                                    <input required placeholder="e.g. Vermillion Ch. 1" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.location} onChange={e => setNewEvent({...newEvent, location: e.target.value})} />
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter">{event.title}</h3>
-                                                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">{event.type} Event • Global Channel 1</p>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Target Pokemon</label>
+                                                    <input placeholder="e.g. Dratini" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.targetPokemon} onChange={e => setNewEvent({...newEvent, targetPokemon: e.target.value})} />
                                                 </div>
                                             </div>
-                                            <button className="btn-accent px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest">Sign Up</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
+											<div className="space-y-2">
+												<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Prize Pool</label>
+												<input placeholder="e.g. 500k Yen" className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none" value={newEvent.prizePool} onChange={e => setNewEvent({...newEvent, prizePool: e.target.value})} />
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-[10px] font-black uppercase tracking-widest ml-2 text-zinc-500">Description</label>
+												<textarea rows="3" placeholder="Rules, requirements, etc..." className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#e0c97b] outline-none resize-none" value={newEvent.description} onChange={e => setNewEvent({...newEvent, description: e.target.value})}></textarea>
+											</div>
+
+											<button type="submit" className="w-full bg-[#e0c97b] text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#f1dfa3] transform active:scale-[0.98] transition-all">
+												Post Event
+											</button>
+										</form>
+									</div>
+								)}
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+									{events.length === 0 ? (
+										<div className="col-span-full text-center py-20 border border-dashed border-white/10 rounded-[3rem]">
+											<p className="text-zinc-600 font-black uppercase tracking-widest text-xs">No upcoming events scheduled.</p>
+										</div>
+									) : (
+										events.map((event) => {
+                                            const isSpriteEvent = event.type === 'Catching' || event.type === 'Giveaway';
+                                            const spriteName = event.targetPokemon?.toLowerCase().replace(/\s+/g, '');
+
+                                            return (
+											<div key={event.id} className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 flex flex-col hover:bg-white/[0.04] transition-all group relative overflow-hidden">
+												<div className="flex justify-between items-start mb-6 z-10">
+													<span className="px-4 py-1 rounded-full bg-[#e0c97b]/10 border border-[#e0c97b]/20 text-[#e0c97b] text-[9px] font-black uppercase tracking-widest">
+														{event.type}
+													</span>
+													{isStaffMode && (
+														<button onClick={() => deleteEvent(event.id)} className="text-zinc-600 hover:text-red-500 transition-colors">
+															<i data-lucide="trash-2" className="w-4 h-4"></i>
+														</button>
+													)}
+												</div>
+
+												<h2 className="text-3xl font-black italic uppercase tracking-tighter mb-4 group-hover:text-[#e0c97b] transition-colors leading-none z-10">
+													{event.title}
+												</h2>
+
+                                                {/* Visual Main Content */}
+                                                {isSpriteEvent && event.targetPokemon ? (
+                                                    <div className="relative h-40 flex items-center justify-center mb-6 bg-black/30 rounded-3xl border border-white/5 group-hover:border-[#e0c97b]/20 transition-all z-10 overflow-hidden">
+                                                        <div className="absolute inset-0 bg-[#e0c97b]/05 blur-2xl rounded-full opacity-50"></div>
+                                                        <img 
+                                                            src={`https://play.pokemonshowdown.com/sprites/gen5ani-shiny/${spriteName}.gif`} 
+                                                            className="h-28 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform" 
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                        />
+                                                        <div className="absolute bottom-4 right-6 text-right">
+                                                            <p className="text-[8px] font-black uppercase text-zinc-600 tracking-widest mb-1">Target</p>
+                                                            <p className="text-sm font-black text-[#e0c97b] uppercase italic">{event.targetPokemon}</p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-zinc-500 text-sm font-medium mb-8 line-clamp-3 z-10">
+                                                        {event.description}
+                                                    </p>
+                                                )}
+
+                                                {/* Details Section */}
+												<div className="mt-auto space-y-4 z-10">
+													<div className="grid grid-cols-2 gap-4">
+														<div className="bg-black/20 p-4 rounded-2xl border border-white/5">
+															<p className="text-[8px] font-black uppercase text-zinc-600 tracking-widest mb-1">When</p>
+															<p className="text-xs font-bold">{event.date} @ {event.time}</p>
+														</div>
+														<div className="bg-black/20 p-4 rounded-2xl border border-white/5">
+															<p className="text-[8px] font-black uppercase text-zinc-600 tracking-widest mb-1">Where</p>
+															<p className="text-xs font-bold">{event.location}</p>
+														</div>
+													</div>
+
+													{event.prizePool && (
+														<div className="bg-[#e0c97b]/5 p-4 rounded-2xl border border-[#e0c97b]/10 flex items-center justify-between">
+															<div className="flex items-center gap-2">
+																<i data-lucide="trophy" className="w-4 h-4 text-[#e0c97b]"></i>
+																<span className="text-[9px] font-black uppercase tracking-widest text-[#e0c97b]">Prize Pool</span>
+															</div>
+															<span className="text-xs font-black text-white">{event.prizePool}</span>
+														</div>
+													)}
+												</div>
+
+												{/* Decorative Background Icon */}
+												<div className="absolute -bottom-4 -right-4 opacity-[0.02] transform rotate-12 group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+													<i data-lucide={isSpriteEvent ? "sparkles" : "calendar"} className="w-40 h-40"></i>
+												</div>
+											</div>
+										)})
+									)}
+								</div>
+							</div>
+						)}
 
                         {currentPage === 'community' && (
                             <div className="animate-in fade-in duration-500 max-w-7xl mx-auto px-6 py-20">
