@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Encounters | PokeMMO Shiny Hunting Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Outfit:wght@400;700;900&display=swap');
+
+        :root {
+            --gold: #FFD700;
+            --gold-glow: rgba(255, 215, 0, 0.4);
+            --bg-deep: #050a14;
+            --glass: rgba(15, 23, 42, 0.8);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, var(--bg-deep), #0f172a);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .heading-font { font-family: 'Outfit', sans-serif; }
+
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to bottom, rgba(5, 10, 20, 0.7), rgba(5, 10, 20, 0.9)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: saturate(0.5) contrast(1.1);
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--gold-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .gold-text {
+            background: linear-gradient(45deg, #facc15, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after { width: 100%; }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        #recruitmentForm input, 
+        #recruitmentForm select, 
+        #recruitmentForm textarea {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+            backdrop-filter: blur(4px);
+        }
+
+        #recruitmentForm select option {
+            background-color: #0f172a;
+            color: white;
+        }
+
+        #recruitmentForm input:focus, 
+        #recruitmentForm select:focus, 
+        #recruitmentForm textarea:focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 2px var(--gold-glow) !important;
+            outline: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .btn-gold:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .badge-tag {
+            background: rgba(250, 204, 21, 0.1);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            color: #facc15;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pixel-sprite {
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="hero-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-4 z-50 glass-card mx-4 px-6 py-4 flex items-center justify-between border-none rounded-2xl shadow-2xl">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(250,204,21,0.5)]">
+                <i class="fas fa-star text-slate-900"></i>
+            </div>
+            <span class="heading-font font-bold text-xl tracking-tight hidden md:block">GOLDEN <span class="gold-text">ENCOUNTERS</span></span>
+        </div>
+        
+        <div class="hidden lg:flex items-center gap-8 font-medium text-sm uppercase tracking-widest text-slate-400">
+            <a href="index.html" class="nav-link text-yellow-400">Home</a>
+            <a href="team.html" className="nav-link">Team</a>
+            <a href="pokedex.html" className="nav-link">Pokedex</a>
+            <a href="events.html" className="nav-link">Events</a>
+            <a href="community.html" className="nav-link">Community</a>
+        </div>
+
+        <a href="https://discord.gg/your-invite-link" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] px-6 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 text-white">
+            <i class="fab fa-discord"></i> Discord
+        </a>
+    </nav>
+
+    <!-- Hero Content -->
+    <main class="container mx-auto px-4 pt-16 pb-24">
+        <header class="text-center mb-20 relative">
+            <h1 class="heading-font text-5xl md:text-7xl font-black mb-4 uppercase tracking-tighter">
+                Welcome to <span class="gold-text">Golden Encounters!</span>
+            </h1>
+            <p class="text-yellow-500/80 italic text-xl mb-8">Where Every Shiny Tells a Story</p>
+            <div class="max-w-3xl mx-auto space-y-4 text-slate-300 text-lg leading-relaxed">
+                <p>Welcome to <span class="text-yellow-400 font-bold">Golden Encounters</span>, a dedicated PokeMMO shiny hunting team built on patience, passion, and that unbeatable thrill when the sparkle finally hits.</p>
+            </div>
+        </header>
+
+        <!-- Feature Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
+            <div class="glass-card p-6 text-center">
+                <i class="fas fa-wand-magic-sparkles text-3xl mb-4 text-pink-400"></i>
+                <h3 class="font-bold mb-2">Serious Shiny Hunting</h3>
+                <p class="text-sm text-slate-400">Advanced strategies and dedicated hunting groups.</p>
+            </div>
+            <div class="glass-card p-6 text-center">
+                <i class="fas fa-heart text-3xl mb-4 text-orange-400"></i>
+                <h3 class="font-bold mb-2">Supportive Community</h3>
+                <p class="text-sm text-slate-400">A friendly environment for veterans and beginners alike.</p>
+            </div>
+            <div class="glass-card p-6 text-center border-yellow-500/30">
+                <i class="fas fa-chart-line text-3xl mb-4 text-yellow-400"></i>
+                <h3 class="font-bold mb-2">Progress & Goals</h3>
+                <p class="text-sm text-slate-400">Track your hunts and reach new milestones together.</p>
+            </div>
+            <div class="glass-card p-6 text-center">
+                <i class="fas fa-trophy text-3xl mb-4 text-amber-600"></i>
+                <h3 class="font-bold mb-2">Events & Challenges</h3>
+                <p class="text-sm text-slate-400">Weekly competitions and rare prize distributions.</p>
+            </div>
+        </div>
+
+        <!-- Spotlight Section -->
+        <section class="mb-24">
+            <h2 class="heading-font text-3xl font-bold mb-10 flex items-center gap-4">
+                <span class="h-px bg-slate-700 flex-grow"></span>
+                CURRENT <span class="gold-text">SPOTLIGHTS</span>
+                <span class="h-px bg-slate-700 flex-grow"></span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Frozen Spotlight -->
+                <div class="glass-card overflow-hidden group">
+                    <div class="h-48 bg-gradient-to-br from-blue-900/50 to-cyan-900/50 flex items-center justify-center relative">
+                        <!-- Shiny Articuno Sprite -->
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/144.gif" alt="Shiny Articuno" class="pixel-sprite w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(147,197,253,0.5)]">
+                        <span class="absolute top-4 left-4 text-[10px] uppercase tracking-widest bg-blue-500/20 px-2 py-1 rounded border border-blue-500/50">Monthly Legendary</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="heading-font text-2xl font-bold mb-1">Frozen Spotlight</h3>
+                        <p class="text-cyan-400 font-bold text-sm mb-4">Shiny Articuno</p>
+                        <p class="text-slate-400 text-sm mb-6">A rare and majestic ice-type that embodies patience and precision.</p>
+                    </div>
+                </div>
+
+                <!-- Golden Spotlight -->
+                <div class="glass-card overflow-hidden border-yellow-500/50 scale-105 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                    <div class="h-48 bg-gradient-to-br from-yellow-900/40 to-amber-900/40 flex items-center justify-center relative">
+                        <!-- Shiny Pikachu Sprite -->
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/25.gif" alt="Shiny Pikachu" class="pixel-sprite w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]">
+                        <span class="absolute top-4 left-4 text-[10px] uppercase tracking-widest bg-yellow-500/20 px-2 py-1 rounded border border-yellow-500/50 text-yellow-400">Featured Shiny</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="heading-font text-2xl font-bold mb-1">Golden Spotlight</h3>
+                        <p class="text-yellow-400 font-bold text-sm mb-4">Shiny Pikachu</p>
+                        <p class="text-slate-400 text-sm mb-6">This week's featured hunt is an iconic favorite. A classic that never fades.</p>
+                    </div>
+                </div>
+
+                <!-- Storm Spotlight -->
+                <div class="glass-card overflow-hidden">
+                    <div class="h-48 bg-gradient-to-br from-purple-900/50 to-indigo-900/50 flex items-center justify-center relative">
+                        <!-- Shiny Raikou Sprite -->
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/243.gif" alt="Shiny Raikou" class="pixel-sprite w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(167,139,250,0.5)]">
+                        <span class="absolute top-4 left-4 text-[10px] uppercase tracking-widest bg-purple-500/20 px-2 py-1 rounded border border-purple-500/50">Monthly Legendary</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="heading-font text-2xl font-bold mb-1">Storm Spotlight</h3>
+                        <p class="text-purple-400 font-bold text-sm mb-4">Shiny Raikou</p>
+                        <p class="text-slate-400 text-sm mb-6">A fierce roaming icon charged with raw energy. Fast, powerful, and unforgettable.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Need a Target? Random Hunt Section -->
+        <section class="mb-24">
+            <div class="glass-card p-8 bg-slate-900/40 border-yellow-500/20">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <!-- Sprite Container -->
+                    <div class="relative w-48 h-48 flex items-center justify-center bg-slate-800/50 rounded-2xl border border-white/5 shadow-inner">
+                        <div class="absolute inset-0 bg-yellow-400/5 animate-pulse rounded-2xl"></div>
+                        <img id="targetSprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/133.gif" alt="Shiny Eevee Sprite" class="pixel-sprite w-24 h-24 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-grow space-y-4 text-center md:text-left">
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                            <span class="badge-tag"><i class="fas fa-dice-d20 mr-1"></i> Random Hunt</span>
+                        </div>
+                        
+                        <h2 class="heading-font text-4xl font-bold text-white">Need a <span class="gold-text">Target?</span></h2>
+                        <h3 id="targetName" class="text-2xl font-semibold text-slate-100">Shiny Eevee</h3>
+                        <p id="targetDescription" class="text-slate-400 max-w-xl">Flexible and valuable. A classic hunt that always feels worth doing.</p>
+                        
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
+                            <span id="targetMethod" class="bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium border border-white/5">Method: Gift / Breed</span>
+                            <span id="targetRegion" class="bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium border border-white/5">Region: Kanto</span>
+                            <span id="targetVibe" class="bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium border border-white/5 text-yellow-400">Vibe: Classic</span>
+                        </div>
+
+                        <div class="pt-4">
+                            <button onclick="rollHunt()" class="btn-gold px-8 py-3 rounded-xl text-sm transition-all flex items-center gap-2 mx-auto md:mx-0">
+                                <i class="fas fa-sync-alt" id="rollIcon"></i> Roll Hunt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recruitment & Media Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch mb-8">
+            <!-- Recruitment Form -->
+            <div class="glass-card p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i class="fas fa-file-signature text-yellow-400 text-2xl"></i>
+                        <h2 class="heading-font text-3xl font-bold">Apply to <span class="gold-text">Join the Hunt</span></h2>
+                    </div>
+                    <form id="recruitmentForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Name</label>
+                                <input type="text" name="name" required class="w-full px-4 py-3 rounded-xl outline-none" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">IGN</label>
+                                <input type="text" name="ign" required class="w-full px-4 py-3 rounded-xl outline-none" placeholder="In-game Name">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Discord Username</label>
+                                <input type="text" name="discord" required class="w-full px-4 py-3 rounded-xl outline-none" placeholder="e.g. shinyhunter_1">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Region</label>
+                                <select name="region" class="w-full px-4 py-3 rounded-xl outline-none appearance-none">
+                                    <option value="Kanto">Kanto</option>
+                                    <option value="Johto">Johto</option>
+                                    <option value="Hoenn">Hoenn</option>
+                                    <option value="Sinnoh">Sinnoh</option>
+                                    <option value="Unova">Unova</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Hunting Experience</label>
+                                <select name="experience" class="w-full px-4 py-3 rounded-xl outline-none appearance-none">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Favorite Shiny</label>
+                                <input type="text" name="favorite_shiny" required class="w-full px-4 py-3 rounded-xl outline-none" placeholder="e.g. Charizard">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-slate-500 mb-1 font-bold">Why do you want to join?</label>
+                            <textarea name="reason" required class="w-full px-4 py-3 rounded-xl outline-none h-24" placeholder="Tell us about your passion for the grind..."></textarea>
+                        </div>
+                        <button type="submit" id="submitBtn" class="btn-gold w-full py-4 rounded-xl uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+                            <span>Submit Application</span>
+                            <i class="fas fa-paper-plane text-xs"></i>
+                        </button>
+                        <p id="formStatus" class="text-center text-sm mt-2 hidden"></p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Media Column -->
+            <div class="flex flex-col gap-8">
+                <!-- Video Section -->
+                <div class="glass-card p-4 overflow-hidden h-full flex flex-col">
+                    <h3 class="heading-font font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-sm">
+                        <i class="fab fa-youtube text-red-500"></i> Featured Video
+                    </h3>
+                    <div class="aspect-video w-full rounded-xl overflow-hidden shadow-lg border border-white/5 bg-black">
+                        <iframe 
+                            class="w-full h-full"
+                            src="https://www.youtube.com/embed/UJcPN84aH5g?start=2" 
+                            title="Golden Encounters Featured Video" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerpolicy="strict-origin-when-cross-origin" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Official Discord Widget -->
+                <div class="glass-card p-4 h-full flex flex-col min-h-[450px]">
+                    <h3 class="heading-font font-bold mb-4 flex items-center gap-2 uppercase tracking-widest text-sm">
+                        <i class="fab fa-discord text-indigo-400"></i> Discord Community
+                    </h3>
+                    <iframe src="https://discord.com/widget?id=1479488507171967026&theme=dark" width="100%" height="100%" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" class="rounded-xl flex-grow bg-slate-900/50"></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Updated to use shiny sprite generation/gif links
+        const hunts = [
+            { name: "Shiny Eevee", desc: "Flexible and valuable. A classic hunt that always feels worth doing.", method: "Gift / Breed", region: "Kanto", vibe: "Classic", img: "133" },
+            { name: "Shiny Charmander", desc: "The ultimate goal for many. A black dragon is the peak of shiny flex.", method: "Starter / Gift", region: "Kanto", vibe: "Elite", img: "4" },
+            { name: "Shiny Magikarp", desc: "Fast encounters and a rewarding red evolution. Great for beginners.", method: "Fishing / Horde", region: "All", vibe: "Casual", img: "129" },
+            { name: "Shiny Beldum", desc: "One of the toughest catches in the game. Only for the most dedicated.", method: "Gift / Wild", region: "Hoenn", vibe: "Extreme", img: "374" },
+            { name: "Shiny Gastly", desc: "Amazing blue flame aesthetic. Looks incredible in follow mode.", method: "Horde / Wild", region: "Kanto", vibe: "Vibrant", img: "92" },
+            { name: "Shiny Bagon", desc: "A long grind in Meteor Falls, but the green dragon is worth every hour.", method: "Wild / Horde", region: "Hoenn", vibe: "Grind", img: "371" },
+            { name: "Shiny Shinx", desc: "A fan favorite with a beautiful gold and black palette.", method: "Horde", region: "Sinnoh", vibe: "Flashy", img: "403" },
+            { name: "Shiny Rayquaza", desc: "The ultimate black serpent. A legendary grind for legendary hunters.", method: "Legendary", region: "Hoenn", vibe: "God-Tier", img: "384" }
+        ];
+
+        function rollHunt() {
+            const icon = document.getElementById('rollIcon');
+            icon.classList.add('fa-spin');
+            
+            const randomHunt = hunts[Math.floor(Math.random() * hunts.length)];
+            
+            setTimeout(() => {
+                document.getElementById('targetName').innerText = randomHunt.name;
+                document.getElementById('targetDescription').innerText = randomHunt.desc;
+                document.getElementById('targetMethod').innerText = `Method: ${randomHunt.method}`;
+                document.getElementById('targetRegion').innerText = `Region: ${randomHunt.region}`;
+                document.getElementById('targetVibe').innerText = `Vibe: ${randomHunt.vibe}`;
+                // Using Gen 5 Shiny Animated Sprites for that authentic PokeMMO look
+                document.getElementById('targetSprite').src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${randomHunt.img}.gif`;
+                icon.classList.remove('fa-spin');
+            }, 600);
+        }
+
+        function createSparkles() {
+            const container = document.body;
+            for (let i = 0; i < 40; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                const size = Math.random() * 3 + 1;
+                sparkle.style.width = `${size}px`;
+                sparkle.style.height = `${size}px`;
+                sparkle.style.top = `${Math.random() * 100}%`;
+                sparkle.style.left = `${Math.random() * 100}%`;
+                sparkle.style.animationDelay = `${Math.random() * 5}s`;
+                sparkle.style.opacity = Math.random();
+                container.appendChild(sparkle);
+            }
+        }
+
+        let DISCORD_WEBHOOK_URL = ""; 
+
+        const form = document.getElementById('recruitmentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMsg = document.getElementById('formStatus');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            if (!DISCORD_WEBHOOK_URL) {
+                statusMsg.textContent = "Recruitment is currently in manual mode. Please contact an admin on Discord!";
+                statusMsg.className = "text-center text-sm mt-2 text-yellow-400 block";
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const payload = {
+                username: "Golden Encounters Bot",
+                avatar_url: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/shiny-charm.png",
+                embeds: [{
+                    title: "✨ New Team Application ✨",
+                    color: 16766720,
+                    fields: [
+                        { name: "Name", value: data.name, inline: true },
+                        { name: "IGN", value: data.ign, inline: true },
+                        { name: "Discord", value: data.discord, inline: true },
+                        { name: "Region", value: data.region, inline: true },
+                        { name: "Experience", value: data.experience, inline: true },
+                        { name: "Favorite Shiny", value: data.favorite_shiny, inline: true },
+                        { name: "Reason for Joining", value: data.reason }
+                    ],
+                    timestamp: new Date()
+                }]
+            };
+            try {
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    statusMsg.textContent = "Application sent! Check Discord soon.";
+                    statusMsg.className = "text-center text-sm mt-2 text-green-400 block";
+                    form.reset();
+                } else { throw new Error(); }
+            } catch (err) {
+                statusMsg.textContent = "Failed to send. Please try again later.";
+                statusMsg.className = "text-center text-sm mt-2 text-red-400 block";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Submit Application</span> <i class="fas fa-paper-plane text-xs"></i>';
+            }
+        };
+
+        window.onload = createSparkles;
+    </script>
+</body>
+</html>
