@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokeDex | Golden Encounters</title>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <script src="components/loader.js" defer></script>
   </head>
   <body>
@@ -501,16 +501,22 @@
         document.getElementById('stat-filtered').textContent = filtered.length;
         document.getElementById('stat-hordes').textContent = allPokemon.filter(p => (encounterMap[p.apiName] || []).some(e => e.method.toLowerCase().includes('3x') || e.method.toLowerCase().includes('5x')) || (RARITY_MAP[p.id] || []).some(r => r.includes('Horde'))).length;
 
-        grid.innerHTML = filtered.map(p => `
-          <div class="pokemon-card glass-panel p-5 flex flex-col items-center cursor-pointer" onclick="this.classList.toggle('expanded')">
-            <div class="generation-badge absolute top-2 right-3 bg-white/5">GEN ${p.generation}</div>
-            <div class="absolute top-2 left-3 text-[9px] font-black text-amber-500/50">#${p.id.toString().padStart(3, '0')}</div>
+grid.innerHTML = filtered.map(p => `
+          <div class="pokemon-card glass-panel p-5 flex flex-col items-center cursor-pointer overflow-hidden transition-all duration-300" onclick="this.classList.toggle('expanded')">
+            <div class="flex justify-between w-full mb-2">
+              <span class="text-[9px] font-black text-amber-500/50">#${p.id.toString().padStart(3, '0')}</span>
+              <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Gen ${p.generation}</span>
+            </div>
+            
             <img src="${SPRITE_BASE}${p.filename}" class="sprite-container w-20 h-20 object-contain" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png'">
+            
             <h3 class="exo text-base font-black text-white mt-3 uppercase">${p.name}</h3>
-            <div class="flex gap-1 mt-2">
+            
+            <div class="flex gap-1 mt-2 flex-wrap justify-center">
               ${(RARITY_MAP[p.id] || []).map(r => `<span class="text-[8px] font-bold bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
             </div>
-            <div class="detail-pane w-full mt-3">
+            
+            <div class="detail-pane w-full mt-3 hidden">
               <div class="bg-black/40 rounded-xl p-3 border border-white/5">
                 ${(encounterMap[p.apiName] || []).slice(0, 4).map(e => `
                   <div class="flex justify-between items-center text-[9px] py-1 border-b border-white/5 last:border-0">
