@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiny Bounties | Golden Encounters</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+    <script src="components/loader.js" defer></script>
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <canvas id="sparkle-canvas"></canvas>
+    <div id="global-navbar"></div>
+    <main class="relative z-10 pt-32 pb-24 px-4 max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="exo text-5xl font-black italic gold-metallic uppercase mb-4 tracking-tighter">✨ Team Shiny Bounty Board ✨</h2>
+        <p class="text-xs font-bold uppercase tracking-[0.25em] text-slate-500">Complete bounties by finding and catching the listed shiny Pokémon. Rewards are given to the first confirmed catch for each target.</p>
+      </div>
+      <div id="bounties-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+      <div class="mt-16 text-center">
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs italic"> Completed bounties will be posted below with pictures and usernames </p>
+      </div>
+      <h3 class="exo text-2xl font-black text-white uppercase italic mt-8 mb-8 border-l-4 border-amber-500 pl-4">Completed Bounties</h3>
+      <div id="completed-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 opacity-80"></div>
+    </main>
+    <div id="global-footer"></div>
+    <script>
+      const bountyList = [{
+        name: "Spinarak",
+        id: 167,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Charmander",
+        id: 4,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Lileep",
+        id: 345,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Ralts",
+        id: 280,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Snorunt",
+        id: 361,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Ducklett",
+        id: 580,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Furret",
+        id: 162,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, {
+        name: "Scyther",
+        id: 123,
+        reward: "1 RP Voucher + Shiny Charm"
+      }, ];
+      const completedBounties = [{
+        name: "Ditto",
+        id: 132,
+        winner: "SilentShadowww",
+        proof: "#"
+      }];
+
+      function renderBounties() {
+        const grid = document.getElementById('bounties-grid');
+        grid.innerHTML = bountyList.map(b => `
+                
+							<div class="glass-panel p-6 flex flex-col items-center text-center border-amber-500/20 hover:border-amber-500/50">
+								<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${b.id}.png" class="w-24 h-24 mb-4 object-contain">
+									<h3 class="exo text-xl font-black text-white uppercase italic mb-3">${b.name}</h3>
+									<div class="bg-black/40 w-full py-2 px-3 rounded-lg border border-white/5 mb-4">
+										<p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest flex items-center justify-center gap-2">
+											<i class="fas fa-gift"></i> ${b.reward}
+                        
+										</p>
+									</div>
+									<a href="pokedex.html?search=${encodeURIComponent(b.name)}" 
+                       class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-black uppercase text-[10px] tracking-widest py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(217,119,6,0.25)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.4)] active:scale-[0.98] transform duration-150">
+										<i class="fas fa-database text-xs"></i> View in Dex
+                    
+									</a>
+								</div>
+            `).join('');
+        const compGrid = document.getElementById('completed-grid');
+        compGrid.innerHTML = completedBounties.map(c => `
+                
+								<div class="glass-panel p-6 flex flex-col items-center text-center border-slate-700 bg-slate-900/50">
+									<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${c.id}.png" class="w-20 h-20 mb-4 opacity-70 grayscale">
+										<h3 class="exo text-lg font-black text-slate-400 uppercase italic">${c.name}</h3>
+										<a href="roster.html" class="text-[10px] text-amber-500 font-bold uppercase mt-2 hover:underline transition-all">Caught by: ${c.winner}</a>
+										<a href="${c.proof}" class="mt-3 text-[9px] text-slate-500 hover:text-amber-500 uppercase tracking-widest transition-all">View Proof</a>
+									</div>
+            `).join('');
+      }
+      renderBounties();
+      const canvas = document.getElementById('sparkle-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+      class Particle {
+        constructor() {
+          this.init();
+        }
+        init() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 1.5;
+          this.speedY = Math.random() * -0.3;
+          this.opacity = Math.random();
+          this.fade = 0.001 + Math.random() * 0.003;
+        }
+        update() {
+          this.y += this.speedY;
+          this.opacity -= this.fade;
+          if (this.opacity <= 0) this.init();
+        }
+        draw() {
+          ctx.fillStyle = `rgba(251, 191, 36, ${this.opacity * 0.2})`;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    </script>
+  </body>
+</html>

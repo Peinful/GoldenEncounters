@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roster | Golden Encounters</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="components/loader.js" defer></script>
+  </head>
+  <body>
+    <canvas id="sparkle-canvas"></canvas>
+    <div id="global-navbar"></div>
+    <main class="relative z-10 pt-32 pb-24 px-4 min-h-screen">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="exo text-5xl font-black italic gold-metallic uppercase mb-4">Team Golden Encounters</h2>
+          <div class="flex flex-col items-center gap-2">
+            <p id="status-text" class="text-slate-500 font-bold tracking-[0.3em] uppercase text-[10px]">Syncing with ShinyBoard...</p>
+            <div id="progress-bar" class="w-48 h-1 bg-white/5 rounded-full overflow-hidden">
+              <div id="progress-fill" class="h-full bg-amber-500 w-0 transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+        <div id="roster-container" class="space-y-6">
+          <!-- Data populated dynamically via JS -->
+        </div>
+      </div>
+    </main>
+    <template id="member-template">
+      <div class="member-wrapper glass-panel p-6 gold-border-glow">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="member-name exo text-xl font-black text-white uppercase italic tracking-wider"></h3>
+              <span class="member-role text-[9px] font-black uppercase tracking-[0.15em] bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full border border-amber-500/20"></span>
+            </div>
+            <div class="shiny-grid grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2"></div>
+          </div>
+          <div class="lg:w-72 border-l border-white/5 pl-6 flex flex-col justify-center bg-white/[0.01] rounded-r-2xl min-h-[140px]">
+            <div class="selected-shiny-info">
+              <p class="text-slate-600 text-[10px] uppercase font-bold italic tracking-widest">Select a Shiny</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <div id="global-footer"></div>
+    <script>
+      // Full comprehensive roster list - Duplicate for Krusche removed
+      const ROSTER_MEMBERS = [{
+        name: "ObsidianOnix",
+        role: "Leader"
+      }, {
+        name: "Offlimon",
+        role: "Executive"
+      }, {
+        name: "FrxInari",
+        role: "Commander"
+      }, {
+        name: "Octanimus",
+        role: "Officer"
+      }, {
+        name: "CodeTTV",
+        role: "Officer"
+      }, {
+        name: "Peinful",
+        role: "Hunter"
+      }, {
+        name: "Hazard",
+        role: "Hunter"
+      }, {
+        name: "Tenbandz",
+        role: "Hunter"
+      }, {
+        name: "MistyCIapper",
+        role: "Hunter"
+      }, {
+        name: "TheKrusche",
+        role: "Hunter"
+      }, {
+        name: "CainLaRue",
+        role: "Hunter"
+      }, {
+        name: "ElWiskers",
+        role: "Hunter"
+      }, {
+        name: "MessageAhead",
+        role: "Hunter"
+      }, {
+        name: "Rafreaki69",
+        role: "Hunter"
+      }, {
+        name: "SirPonzi",
+        role: "Hunter"
+      }, {
+        name: "Mindoftron",
+        role: "Hunter"
+      }, {
+        name: "scolds",
+        role: "Hunter"
+      }, {
+        name: "ChakaKhan",
+        role: "Hunter"
+      }, {
+        name: "KasperVTK",
+        role: "Hunter"
+      }, {
+        name: "IronDxN",
+        role: "Hunter"
+      }, {
+        name: "Ellic",
+        role: "Hunter"
+      }];
+      const CACHE_KEY = "gv_roster_data_v4";
+      const CACHE_TIME = 1000 * 60 * 30; // 30 mins
+      const PROXY_URL = "https://api.codetabs.com/v1/proxy?quest=";
+      async function initRoster() {
+        const container = document.getElementById('roster-container');
+        const template = document.getElementById('member-template');
+        const status = document.getElementById('status-text');
+        const progress = document.getElementById('progress-fill');
+        const cached = localStorage.getItem(CACHE_KEY);
+        let rosterData = {};
+        let needsUpdate = true;
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          rosterData = parsed.data;
+          if (Date.now() - parsed.timestamp < CACHE_TIME) needsUpdate = false;
+        }
+        // Render shells for ALL members immediately
+        container.innerHTML = "";
+        ROSTER_MEMBERS.forEach(member => {
+          const clone = template.content.cloneNode(true);
+          const wrapper = clone.querySelector('.member-wrapper');
+          wrapper.dataset.username = member.name;
+          clone.querySelector('.member-name').textContent = member.name;
+          clone.querySelector('.member-role').textContent = member.role || "Hunter";
+          container.appendChild(clone);
+          // If we have cache, fill it immediately
+          if (rosterData[member.name]) {
+            renderMemberShinies(wrapper, rosterData[member.name]);
+            wrapper.classList.add('loaded');
+          }
+        });
+        if (needsUpdate) {
+          let completed = 0;
+          // Smaller chunk size with slightly longer delay to prevent proxy failure
+          const chunkSize = 2;
+          for (let i = 0; i < ROSTER_MEMBERS.length; i += chunkSize) {
+            const chunk = ROSTER_MEMBERS.slice(i, i + chunkSize);
+            await Promise.all(chunk.map(async (member) => {
+              try {
+                const url = `https://shinyboard.net/api/users/${member.name}/shinies?page=1`;
+                const res = await fetch(`${PROXY_URL}${encodeURIComponent(url)}`);
+                if (res.ok) {
+                  const data = await res.json();
+                  rosterData[member.name] = data.shinies || [];
+                  const wrapper = container.querySelector(`[data-username="${member.name}"]`);
+                  if (wrapper) {
+                    renderMemberShinies(wrapper, rosterData[member.name]);
+                    wrapper.classList.add('loaded');
+                  }
+                }
+              } catch (e) {
+                console.warn(`Retry needed for ${member.name}`);
+              } finally {
+                completed++;
+                progress.style.width = `${(completed / ROSTER_MEMBERS.length) * 100}%`;
+              }
+            }));
+            // Wait 1.5s between batches
+            if (i + chunkSize < ROSTER_MEMBERS.length) await new Promise(r => setTimeout(r, 1500));
+          }
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            timestamp: Date.now(),
+            data: rosterData
+          }));
+          status.textContent = "Roster Synchronized";
+        } else {
+          status.textContent = "Live Roster Data (Cached)";
+          progress.style.width = "100%";
+        }
+      }
+
+      function renderMemberShinies(wrapper, shinies) {
+        const grid = wrapper.querySelector('.shiny-grid');
+        const infoBox = wrapper.querySelector('.selected-shiny-info');
+        grid.innerHTML = "";
+        if (!shinies || shinies.length === 0) {
+          grid.innerHTML = ' < p class = "text-slate-800 text-[9px] uppercase font-bold col-span-full py-2 italic opacity-50" > Private or no data found < /p>';
+          return;
+        }
+        shinies.slice(0, 36).forEach((shiny, idx) => {
+          let filename = shiny.pokemon.filename;
+          if (shiny.variant === "female" && shiny.pokemon.filename_f) filename = shiny.pokemon.filename_f;
+          const card = document.createElement('div');
+          card.className = "shiny-card p-1 rounded-lg flex items-center justify-center aspect-square";
+          card.innerHTML = `
+							<img src="https://www.shinyboard.net/sprites/${filename}" class="sprite-container w-10 h-10 object-contain" loading="lazy">`;
+          const updateInfo = () => {
+            wrapper.querySelectorAll('.shiny-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            const nick = shiny.nickname ? `"${shiny.nickname}"` : shiny.pokemon.name;
+            infoBox.innerHTML = `
+                        
+								<div class="space-y-3">
+									<p class="exo text-lg font-black gold-metallic italic uppercase tracking-tighter">${nick}</p>
+									<div class="grid grid-cols-1 gap-2">
+										<div>
+											<p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Encounters</p>
+											<p class="text-amber-500 font-bold text-sm">${shiny.encounter_count?.toLocaleString() || 'N/A'}</p>
+										</div>
+										<div>
+											<p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Stats / IVs</p>
+											<p class="text-white font-bold text-[11px] tracking-widest truncate">${shiny.ivs || '—'}</p>
+										</div>
+										<div>
+											<p class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Date</p>
+											<p class="text-slate-300 font-bold text-[10px] uppercase">${shiny.date_caught ? new Date(shiny.date_caught).toLocaleDateString() : 'Unknown'}</p>
+										</div>
+									</div>
+								</div>
+                    `;
+          };
+          card.onclick = (e) => {
+            e.stopPropagation();
+            updateInfo();
+          };
+          grid.appendChild(card);
+          if (idx === 0) updateInfo();
+        });
+      }
+      // Particle background
+      const canvas = document.getElementById('sparkle-canvas');
+      const ctx = canvas.getContext('2d');
+      let sparkles = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      class Sparkle {
+        constructor() {
+          this.init();
+        }
+        init() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 1.5;
+          this.opacity = Math.random();
+          this.fade = 0.002 + Math.random() * 0.004;
+        }
+        update() {
+          this.opacity -= this.fade;
+          if (this.opacity <= 0) this.init();
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(191, 149, 63, ${this.opacity * 0.35})`;
+          ctx.fill();
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        sparkles.forEach(s => {
+          s.update();
+          s.draw();
+        });
+        requestAnimationFrame(animate);
+      }
+      window.onload = () => {
+        resize();
+        for (let i = 0; i < 60; i++) sparkles.push(new Sparkle());
+        animate();
+        initRoster();
+        window.addEventListener('resize', resize);
+      };
+    </script>
+  </body>
+</html>

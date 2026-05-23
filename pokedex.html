@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeDex | Golden Encounters</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="components/loader.js" defer></script>
+  </head>
+  <body>
+    <canvas id="sparkle-canvas"></canvas>
+    <div id="global-navbar"></div>
+    <main class="relative z-10 pt-32 pb-24 px-4 max-w-7xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="exo text-5xl font-black italic gold-metallic uppercase mb-4 tracking-tighter">Shiny Dex</h2>
+        <p class="text-xs font-bold uppercase tracking-[0.25em] text-slate-500 mb-8">All shiny sprites. Gen 1 through Gen 5.</p>
+        <div class="grid grid-cols-3 gap-4 max-w-xl mx-auto mb-6 text-center">
+          <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-3 backdrop-blur-md">
+            <strong id="stat-total" class="block text-2xl font-black text-amber-400">0</strong>
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Total Species</span>
+          </div>
+          <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-3 backdrop-blur-md">
+            <strong id="stat-hordes" class="block text-2xl font-black text-purple-400">0</strong>
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Horde Species</span>
+          </div>
+          <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-3 backdrop-blur-md">
+            <strong id="stat-filtered" class="block text-2xl font-black text-emerald-400">0</strong>
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Filtered View</span>
+          </div>
+        </div>
+        <div class="max-w-xl mx-auto space-y-5 bg-white/[0.01] p-6 rounded-3xl border border-white/5 backdrop-blur-md">
+          <div class="search-bar flex items-center px-5 py-3.5 rounded-2xl">
+            <i class="fas fa-search text-amber-500/60 mr-4 text-sm"></i>
+            <input type="text" id="pokedex-search" placeholder="Search by name, ID number, or route..." class="bg-transparent border-none outline-none w-full text-white placeholder:text-slate-600 font-semibold text-sm">
+          </div>
+          <div class="flex flex-wrap justify-center gap-2" id="category-filters">
+            <button class="filter-btn active" data-category="all"><i class="fas fa-list"></i> All</button>
+            <button class="filter-btn" data-category="horde5x"><i class="fas fa-users"></i> Hordes 5x</button>
+            <button class="filter-btn" data-category="horde3x"><i class="fas fa-users"></i> Hordes 3x</button>
+            <button class="filter-btn" data-category="lure"><i class="fas fa-fish"></i> Lure</button>
+            <button class="filter-btn" data-category="egg"><i class="fas fa-egg"></i> Egg</button>
+            <button class="filter-btn" data-category="honey"><i class="fas fa-tree"></i> Honey Tree</button>
+            <button class="filter-btn" data-category="fossil"><i class="fas fa-bone"></i> Fossil</button>
+            <button class="filter-btn" data-category="grass"><i class="fas fa-leaf"></i> Grass</button>
+            <button class="filter-btn" data-category="water"><i class="fas fa-water"></i> Water</button>
+            <button class="filter-btn" data-category="cave"><i class="fas fa-mountain"></i> Cave</button>
+          </div>
+          <div class="flex flex-wrap justify-center gap-1.5 border-t border-white/5 pt-4" id="generation-filters">
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors active" data-gen="all">All Gens</button>
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors" data-gen="1">Gen 1</button>
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors" data-gen="2">Gen 2</button>
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors" data-gen="3">Gen 3</button>
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors" data-gen="4">Gen 4</button>
+            <button class="text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-400 px-2 py-1 rounded transition-colors" data-gen="5">Gen 5</button>
+          </div>
+        </div>
+      </div>
+      <div id="pokedex-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6"></div>
+    </main>
+    <script>
+      const SPRITE_BASE = "https://www.shinyboard.net/sprites/";
+        const simpleCategoryMapBase = {
+        1: ["Lure"],
+        2: ["Lure"],
+        4: ["Lure"],
+        5: ["Lure"],
+        7: ["Lure"],
+        8: ["Lure"],
+        14: ["Horde 5x"],
+        25: ["Horde 5x"],
+        37: ["Horde 3x"],
+        50: ["Horde 3x"],
+        58: ["Horde 3x"],
+        81: ["Horde 3x"],
+        92: ["Horde 3x"],
+        111: ["Horde 5x"],
+        116: ["Horde 5x", "Horde 3x"],
+        120: ["Horde 5x", "Horde 3x"],
+        123: ["Egg"],
+        127: ["Horde 5x"],
+        131: ["Egg"],
+        133: ["Egg", "Lure"],
+        147: ["Lure"],
+        152: ["Lure"],
+        155: ["Lure"],
+        158: ["Lure"],
+        167: ["Horde 3x"],
+        175: ["Egg", "Lure"],
+        183: ["Horde 5x", "Horde 3x"],
+        194: ["Horde 5x"],
+        220: ["Horde 5x"],
+        252: ["Lure"],
+        255: ["Lure"],
+        258: ["Lure"],
+        278: ["Horde 5x"],
+        302: ["Horde 5x"],
+        315: ["Horde 5x"],
+        320: ["Horde 5x"],
+        328: ["Horde 3x"],
+        353: ["Horde 5x"],
+        361: ["Horde 5x"],
+        363: ["Horde 5x"],
+        374: ["Egg"],
+        387: ["Lure"],
+        390: ["Lure"],
+        393: ["Lure"],
+        418: ["Horde 5x"],
+        425: ["Horde 5x"],
+        447: ["Egg"],
+        453: ["Horde 5x"],
+        459: ["Horde 5x"],
+        495: ["Lure"],
+        498: ["Lure"],
+        501: ["Lure"],
+        527: ["Horde 5x"],
+        540: ["Horde 3x"],
+        551: ["Horde 3x"],
+        595: ["Horde 5x"],
+        607: ["Horde 5x"],
+        190: ["Honey Tree"],
+        214: ["Honey Tree"],
+        265: ["Honey Tree"],
+        266: ["Honey Tree"],
+        268: ["Honey Tree"],
+        412: ["Honey Tree"],
+        10034: ["Honey Tree"],
+        10035: ["Honey Tree"],
+        415: ["Honey Tree"],
+        420: ["Honey Tree"],
+        446: ["Honey Tree"],
+        138: ["Fossil"],
+        139: ["Fossil"],
+        140: ["Fossil"],
+        141: ["Fossil"],
+        142: ["Fossil"],
+        345: ["Fossil"],
+        346: ["Fossil"],
+        347: ["Fossil"],
+        408: ["Fossil"],
+        409: ["Fossil"],
+        410: ["Fossil"],
+        411: ["Fossil"],
+        564: ["Fossil"],
+        565: ["Fossil"],
+        566: ["Fossil"],
+        567: ["Fossil"]
+        };
+
+        const categoryAdditions = {
+        3: ["Egg"],
+        6: ["Egg"],
+        9: ["Egg"],
+        11: ["Horde 5x"],
+        16: ["Horde 3x", "Horde 5x"],
+        17: ["Horde 5x"],
+        19: ["Horde 3x", "Horde 5x"],
+        20: ["Horde 5x"],
+        21: ["Horde 3x"],
+        22: ["Horde 5x"],
+        24: ["Horde 5x"],
+        25: ["Horde 5x"],
+        27: ["Horde 3x", "Horde 5x"],
+        28: ["Horde 5x"],
+        29: ["Horde 5x", "Horde 3x"],
+        30: ["Horde 5x"],
+        32: ["Horde 5x", "Horde 3x"],
+        33: ["Horde 5x"],
+        35: ["Horde 5x"],
+        37: ["Horde 3x", "Horde 5x"],
+        39: ["Horde 5x"],
+        41: ["Horde 3x", "Horde 5x"],
+        42: ["Horde 3x", "Horde 5x"],
+        43: ["Horde 3x", "Horde 5x"],
+        44: ["Horde 5x"],
+        46: ["Horde 3x"],
+        47: ["Horde 5x"],
+        48: ["Horde 3x"],
+        50: ["Horde 3x"],
+        51: ["Horde 5x"],
+        52: ["Horde 3x", "Horde 5x"],
+        53: ["Horde 5x"],
+        54: ["Horde 3x", "Horde 5x"],
+        55: ["Horde 5x"],
+        56: ["Horde 3x", "Horde 5x"],
+        57: ["Horde 5x"],
+        58: ["Horde 3x", "Horde 5x"],
+        60: ["Horde 5x"],
+        61: ["Horde 5x"],
+        64: ["Horde 5x"],
+        66: ["Horde 3x", "Horde 5x"],
+        67: ["Horde 5x", "Horde 3x"],
+        69: ["Horde 3x"],
+        72: ["Horde 5x", "Horde 3x"],
+        73: ["Horde 5x"],
+        74: ["Horde 3x", "Horde 5x"],
+        75: ["Horde 5x"],
+        77: ["Horde 3x", "Horde 5x"],
+        78: ["Horde 5x"],
+        79: ["Horde 5x", "Horde 3x"],
+        80: ["Horde 5x"],
+        81: ["Horde 3x", "Horde 5x"],
+        84: ["Horde 5x"],
+        85: ["Horde 5x"],
+        86: ["Horde 5x"],
+        87: ["Horde 5x"],
+        88: ["Horde 5x"],
+        92: ["Horde 3x"],
+        93: ["Horde 3x", "Horde 5x"],
+        95: ["Horde 3x", "Horde 5x"],
+        96: ["Horde 3x"],
+        97: ["Horde 5x"],
+        98: ["Horde 3x", "Horde 5x"],
+        99: ["Horde 5x"],
+        100: ["Horde 3x", "Horde 5x"],
+        104: ["Horde 3x"],
+        105: ["Horde 5x"],
+        108: ["Horde 5x"],
+        109: ["Horde 5x"],
+        112: ["Horde 5x"],
+        114: ["Horde 5x"],
+        116: ["Horde 5x", "Horde 3x"],
+        118: ["Horde 5x"],
+        119: ["Horde 5x"],
+        125: ["Horde 5x"],
+        126: ["Horde 5x"],
+        128: ["Horde 5x"],
+        129: ["Horde 5x"],
+        130: ["Horde 5x"],
+        132: ["Horde 5x"],
+        140: ["Horde 5x"],
+        141: ["Horde 5x"],
+        147: ["Horde 5x", "Lure"],
+        164: ["Horde 5x", "Horde 3x"],
+        165: ["Horde 3x"],
+        167: ["Horde 3x"],
+        168: ["Horde 5x"],
+        170: ["Horde 5x"],
+        177: ["Horde 5x"],
+        179: ["Horde 5x"],
+        180: ["Horde 5x"],
+        183: ["Horde 5x", "Horde 3x"],
+        187: ["Horde 3x", "Horde 5x"],
+        188: ["Horde 5x"],
+        191: ["Horde 3x"],
+        194: ["Horde 5x"],
+        195: ["Horde 5x", "Horde 3x"],
+        198: ["Horde 5x"],
+        200: ["Horde 5x", "Horde 3x"],
+        202: ["Horde 5x"],
+        203: ["Horde 5x", "Horde 3x"],
+        206: ["Horde 5x"],
+        207: ["Horde 5x"],
+        208: ["Horde 5x"],
+        215: ["Horde 5x"],
+        217: ["Horde 5x"],
+        218: ["Horde 5x"],
+        221: ["Horde 5x"],
+        225: ["Horde 5x"],
+        226: ["Horde 5x"],
+        231: ["Horde 5x"],
+        232: ["Horde 5x"],
+        234: ["Horde 3x", "Horde 5x"],
+        235: ["Horde 5x"],
+        238: ["Horde 5x"],
+        241: ["Horde 5x"],
+        246: ["Horde 5x"],
+        263: ["Horde 5x"],
+        264: ["Horde 5x"],
+        270: ["Horde 3x"],
+        271: ["Horde 5x"],
+        273: ["Horde 3x"],
+        277: ["Horde 5x"],
+        283: ["Horde 3x", "Horde 5x"],
+        294: ["Horde 5x"],
+        296: ["Horde 3x"],
+        297: ["Horde 5x"],
+        299: ["Horde 5x"],
+        302: ["Horde 5x", "Horde 3x"],
+        303: ["Horde 5x", "Horde 3x"],
+        304: ["Horde 3x"],
+        305: ["Horde 5x"],
+        307: ["Horde 5x", "Horde 3x"],
+        308: ["Horde 5x"],
+        309: ["Horde 3x", "Horde 5x"],
+        313: ["Horde 3x"],
+        314: ["Horde 3x"],
+        315: ["Horde 3x", "Horde 5x"],
+        320: ["Horde 5x"],
+        322: ["Horde 3x"],
+        323: ["Horde 5x", "Horde 3x"],
+        324: ["Horde 3x"],
+        325: ["Horde 3x"],
+        327: ["Horde 3x"],
+        328: ["Horde 3x"],
+        331: ["Horde 3x"],
+        333: ["Horde 5x"],
+        334: ["Horde 5x"],
+        335: ["Horde 3x"],
+        336: ["Horde 3x"],
+        337: ["Horde 5x"],
+        338: ["Horde 5x"],
+        344: ["Horde 5x"],
+        353: ["Horde 5x"],
+        354: ["Horde 5x"],
+        355: ["Horde 5x"],
+        361: ["Horde 5x"],
+        364: ["Horde 5x"],
+        366: ["Horde 5x"],
+        397: ["Horde 3x", "Horde 5x"],
+        399: ["Horde 3x"],
+        400: ["Horde 3x", "Horde 5x"],
+        401: ["Horde 3x"],
+        402: ["Horde 3x"],
+        403: ["Horde 3x"],
+        404: ["Horde 5x"],
+        406: ["Horde 3x"],
+        418: ["Horde 3x", "Horde 5x"],
+        419: ["Horde 5x"],
+        422: ["Horde 3x", "Horde 5x"],
+        423: ["Horde 5x"],
+        427: ["Horde 3x"],
+        432: ["Horde 5x"],
+        434: ["Horde 3x"],
+        436: ["Horde 5x", "Horde 3x"],
+        437: ["Horde 5x"],
+        441: ["Horde 3x"],
+        443: ["Horde 3x"],
+        444: ["Horde 5x"],
+        449: ["Horde 3x"],
+        459: ["Horde 5x"],
+        460: ["Horde 5x"],
+        505: ["Horde 5x"],
+        507: ["Horde 3x", "Horde 5x"],
+        509: ["Horde 3x"],
+        510: ["Horde 3x", "Horde 5x"],
+        519: ["Horde 3x"],
+        520: ["Horde 5x"],
+        522: ["Horde 3x"],
+        523: ["Horde 5x"],
+        525: ["Horde 5x"],
+        527: ["Horde 5x"],
+        532: ["Horde 5x", "Horde 3x"],
+        533: ["Horde 5x"],
+        535: ["Horde 3x"],
+        536: ["Horde 5x"],
+        538: ["Horde 5x"],
+        539: ["Horde 5x"],
+        540: ["Horde 3x"],
+        541: ["Horde 5x"],
+        543: ["Horde 3x"],
+        544: ["Horde 3x"],
+        546: ["Horde 3x"],
+        548: ["Horde 3x"],
+        551: ["Horde 5x", "Horde 3x"],
+        554: ["Horde 3x"],
+        556: ["Horde 3x"],
+        558: ["Horde 5x"],
+        559: ["Horde 5x"],
+        561: ["Horde 3x"],
+        562: ["Horde 5x", "Horde 3x"],
+        563: ["Horde 5x"],
+        568: ["Horde 3x"],
+        570: ["Horde 3x"],
+        572: ["Horde 3x"],
+        574: ["Horde 3x"],
+        575: ["Horde 5x"],
+        577: ["Horde 3x"],
+        578: ["Horde 5x"],
+        582: ["Horde 5x"],
+        583: ["Horde 5x"],
+        585: ["Horde 3x", "Horde 5x"],
+        586: ["Horde 5x"],
+        588: ["Horde 3x"],
+        591: ["Horde 5x"],
+        592: ["Horde 5x"],
+        595: ["Horde 5x"],
+        597: ["Horde 5x"],
+        599: ["Horde 5x"],
+        602: ["Horde 5x"],
+        605: ["Horde 5x"],
+        606: ["Horde 5x"],
+        607: ["Horde 5x"],
+        610: ["Horde 5x"],
+        613: ["Horde 5x"],
+        614: ["Horde 5x"],
+        615: ["Horde 5x"],
+        616: ["Horde 5x"],
+        618: ["Horde 5x"],
+        620: ["Horde 5x"],
+        621: ["Horde 5x"],
+        622: ["Horde 5x"],
+        626: ["Horde 5x"],
+        627: ["Horde 5x"],
+        629: ["Horde 5x"],
+        631: ["Horde 5x"],
+        632: ["Horde 5x"],
+        633: ["Horde 5x"]
+     };
+
+      let allPokemon = [];
+      let encounterMap = {};
+      let currentFilter = 'all';
+      let currentGenFilter = 'all';
+      let searchQuery = '';
+
+      function getGenerationFromId(id) {
+        if (id >= 1 && id <= 151) return 1;
+        if (id >= 152 && id <= 251) return 2;
+        if (id >= 252 && id <= 386) return 3;
+        if (id >= 387 && id <= 493) return 4;
+        if (id >= 494 && id <= 649) return 5;
+        return 1;
+      }
+
+      function formatPokemonName(name) {
+        return name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
+
+      function compileEncounterData(data) {
+        const parsedMap = {};
+        Object.values(data).forEach(categoryArray => {
+          categoryArray.forEach(enc => {
+            const cleanName = enc.pokemon.toLowerCase().trim();
+            if (!parsedMap[cleanName]) parsedMap[cleanName] = [];
+            parsedMap[cleanName].push({ location: `${enc.region_name}: ${enc.location}`, method: enc.type });
+          });
+        });
+        return parsedMap;
+      }
+
+      function setupControls() {
+        document.getElementById('pokedex-search').addEventListener('input', (e) => {
+          searchQuery = e.target.value.toLowerCase().trim();
+          render();
+        });
+        document.querySelectorAll('#category-filters .filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#category-filters .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.category;
+            render();
+          });
+        });
+        document.querySelectorAll('#generation-filters button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#generation-filters button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentGenFilter = btn.dataset.gen;
+            render();
+          });
+        });
+      }
+
+      function hideProgressBar() {
+        setTimeout(() => {
+          const bar = document.getElementById('progress-bar');
+          const txt = document.getElementById('status-text');
+          if (bar) bar.style.opacity = '0';
+          if (txt) txt.style.opacity = '0';
+        }, 1000);
+      }
+
+      const RARITY_MAP = (() => {
+        const combined = { ...simpleCategoryMapBase };
+        for (const [id, categories] of Object.entries(categoryAdditions)) {
+          combined[id] = [...(combined[id] || []), ...categories];
+        }
+        return combined;
+      })();
+
+      function render() {
+        const grid = document.getElementById('pokedex-grid');
+        if (!grid) return;
+        const filtered = allPokemon.filter(p => {
+          const encs = encounterMap[p.apiName] || [];
+          const rarityData = RARITY_MAP[p.id] || [];
+          const m = encs.map(e => e.method.toLowerCase()).join(' ');
+          const l = encs.map(e => e.location.toLowerCase()).join(' ');
+          const textMatch = p.name.toLowerCase().includes(searchQuery) || p.id.toString() === searchQuery;
+          const genMatch = currentGenFilter === 'all' || p.generation.toString() === currentGenFilter;
+          let catMatch = true;
+          if (currentFilter !== 'all') {
+            if (currentFilter === 'horde5x') catMatch = rarityData.some(r => r === 'Horde 5x') || m.includes('5x');
+            else if (currentFilter === 'horde3x') catMatch = rarityData.some(r => r === 'Horde 3x') || m.includes('3x');
+            else if (currentFilter === 'lure') catMatch = rarityData.some(r => r.toLowerCase() === 'lure');
+            else if (currentFilter === 'egg') catMatch = rarityData.some(r => r.toLowerCase() === 'egg');
+            else if (currentFilter === 'honey') catMatch = l.includes('honey tree');
+            else if (currentFilter === 'fossil') catMatch = rarityData.some(r => r.toLowerCase() === 'fossil');
+            else if (currentFilter === 'water') catMatch = m.includes('surf') || m.includes('fish') || m.includes('rod');
+            else if (currentFilter === 'grass') catMatch = m.includes('grass') || m.includes('walk');
+            else if (currentFilter === 'cave') catMatch = l.includes('cave') || l.includes('tunnel') || l.includes('mountain') || m.includes('cave');
+          }
+          return textMatch && catMatch && genMatch;
+        });
+
+        document.getElementById('stat-total').textContent = allPokemon.length;
+        document.getElementById('stat-filtered').textContent = filtered.length;
+        document.getElementById('stat-hordes').textContent = allPokemon.filter(p => (encounterMap[p.apiName] || []).some(e => e.method.toLowerCase().includes('3x') || e.method.toLowerCase().includes('5x')) || (RARITY_MAP[p.id] || []).some(r => r.includes('Horde'))).length;
+
+        grid.innerHTML = filtered.map(p => `
+          <div class="pokemon-card glass-panel p-5 flex flex-col items-center cursor-pointer" onclick="this.classList.toggle('expanded')">
+            <div class="generation-badge absolute top-2 right-3 bg-white/5">GEN ${p.generation}</div>
+            <div class="absolute top-2 left-3 text-[9px] font-black text-amber-500/50">#${p.id.toString().padStart(3, '0')}</div>
+            <img src="${SPRITE_BASE}${p.filename}" class="sprite-container w-20 h-20 object-contain" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png'">
+            <h3 class="exo text-base font-black text-white mt-3 uppercase">${p.name}</h3>
+            <div class="flex gap-1 mt-2">
+              ${(RARITY_MAP[p.id] || []).map(r => `<span class="text-[8px] font-bold bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
+            </div>
+            <div class="detail-pane w-full mt-3">
+              <div class="bg-black/40 rounded-xl p-3 border border-white/5">
+                ${(encounterMap[p.apiName] || []).slice(0, 4).map(e => `
+                  <div class="flex justify-between items-center text-[9px] py-1 border-b border-white/5 last:border-0">
+                    <span class="text-slate-400 truncate pr-2">${e.location}</span>
+                    <span class="text-amber-500 font-bold">${e.method}</span>
+                  </div>
+                `).join('') || '<p class="text-[9px] text-slate-500 italic">No encounter data</p>'}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      async function init() {
+        const status = document.getElementById('status-text');
+        try {
+          const pokeRes = await fetch("https://pokeapi.co/api/v2/pokemon?limit=649");
+          const pokeJson = await pokeRes.json();
+          allPokemon = pokeJson.results.map((p, i) => ({
+            id: i + 1,
+            apiName: p.name.toLowerCase().trim(),
+            name: formatPokemonName(p.name),
+            filename: `${i + 1}.png`,
+            generation: getGenerationFromId(i + 1)
+          }));
+          const locRes = await fetch("location.json");
+          const rawLocData = await locRes.json();
+          encounterMap = compileEncounterData(rawLocData);
+          if (status) status.textContent = "Data Engine Live";
+          setupControls();
+          render();
+          hideProgressBar();
+        } catch (err) {
+          console.error("Init Error:", err);
+          if (status) status.textContent = "Error: Check Console";
+        }
+      }
+
+      const canvas = document.getElementById('sparkle-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+      class Particle {
+        constructor() { this.init(); }
+        init() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 1.5;
+          this.speedY = Math.random() * -0.3;
+          this.opacity = Math.random();
+          this.fade = 0.001 + Math.random() * 0.003;
+        }
+        update() { this.y += this.speedY; this.opacity -= this.fade; if (this.opacity <= 0) this.init(); }
+        draw() {
+          ctx.fillStyle = `rgba(251, 191, 36, ${this.opacity * 0.2})`;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      for (let i = 0; i < 80; i++) particles.push(new Particle());
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+      }
+      animate();
+      init();
+    </script>
+  </body>
+</html>
