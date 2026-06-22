@@ -501,14 +501,14 @@
         document.getElementById('stat-filtered').textContent = filtered.length;
         document.getElementById('stat-hordes').textContent = allPokemon.filter(p => (encounterMap[p.apiName] || []).some(e => e.method.toLowerCase().includes('3x') || e.method.toLowerCase().includes('5x')) || (RARITY_MAP[p.id] || []).some(r => r.includes('Horde'))).length;
 
-grid.innerHTML = filtered.map(p => `
+		grid.innerHTML = filtered.map(p => `
           <div class="pokemon-card glass-panel p-5 flex flex-col items-center cursor-pointer overflow-hidden transition-all duration-300" onclick="this.classList.toggle('expanded')">
             <div class="flex justify-between w-full mb-2">
               <span class="text-[9px] font-black text-amber-500/50">#${p.id.toString().padStart(3, '0')}</span>
               <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Gen ${p.generation}</span>
             </div>
             
-            <img src="${SPRITE_BASE}${p.filename}" class="sprite-container w-20 h-20 object-contain" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.gif'">
+            <img src="${SPRITE_BASE}${p.filename}" class="sprite-container w-20 h-20 object-contain" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${p.id}.png'">
             
             <h3 class="exo text-base font-black text-white mt-3 uppercase">${p.name}</h3>
             
