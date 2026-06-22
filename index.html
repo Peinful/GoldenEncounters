@@ -234,7 +234,7 @@
           const pokemonList = data.results.map((p, index) => ({
             id: index + 1,
             name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
-            filename: `${index + 1}.png`
+            filename: `${index + 1}.gif`
           }));
           displayDailyTarget(pokemonList);
         } catch (err) {
@@ -255,7 +255,7 @@
         if (nameEl && idEl && spriteEl) {
           nameEl.textContent = pokemon.name;
           idEl.textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
-          spriteEl.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`;
+          spriteEl.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${pokemon.id}.gif`;
           spriteEl.classList.remove('hidden');
           placeholderEl.classList.add('hidden');
           // Update the Dex Link to pass the name
