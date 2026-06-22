@@ -1,7 +1,7 @@
 /* --- Global Styles & Variables --- */
 :root {
-  --bg-obsidian: #05070a;
-  --card-bg: rgba(15, 18, 26, 0.9);
+  --bg-obsidian: #0a0f1d;
+  --card-bg: rgba(16, 24, 48, 0.7);
   --gold: #fbbf24;
   --gold-rgb: 191, 149, 63;
 }
